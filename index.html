@@ -3,155 +3,193 @@
 <head>
 <meta charset="UTF-8">
 <title>Pedido Restaurante</title>
+
 <style>
-body { font-family: Arial, sans-serif; background: #fff8f0; padding: 20px; }
-form { max-width: 500px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
-.form-group { margin-bottom: 20px; }
-label { display: block; margin-bottom: 5px; font-weight: 500; color: #374151; }
-input, textarea { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
-button[type="submit"] { position: relative; background: #aa336a; color: white; padding: 12px 24px; border: none; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; overflow: hidden; }
-button[type="submit"]:hover { background: #923159; }
-button[disabled] { opacity: 0.7; cursor: not-allowed; }
 
-/* Spinner */
-.spinner {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 18px;
-  height: 18px;
-  margin: -9px 0 0 -9px;
-  border: 3px solid #fff;
-  border-top-color: transparent;
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-  display: none;
+body{
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg,#fff3e6,#ffe0cc);
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0;
 }
-@keyframes spin { to { transform: rotate(360deg); } }
 
-/* Modal */
-.modal { display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
-.modal-content { background: #fff; margin: 15% auto; padding: 20px; border-radius: 10px; width: 80%; max-width: 400px; text-align: center; }
-.close-btn { margin-top: 15px; background: #aa336a; color: #fff; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-.close-btn:hover { background: #923159; }
+.container{
+  width:100%;
+  max-width:420px;
+}
+
+h1{
+  text-align:center;
+  color:#d35400;
+  margin-bottom:20px;
+}
+
+form{
+  background:#fff;
+  padding:25px;
+  border-radius:12px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.15);
+}
+
+input, textarea{
+  width:100%;
+  margin-bottom:14px;
+  padding:12px;
+  border-radius:6px;
+  border:1px solid #ddd;
+  font-size:15px;
+  box-sizing:border-box;
+  transition:0.2s;
+}
+
+input:focus, textarea:focus{
+  border-color:#d35400;
+  outline:none;
+  box-shadow:0 0 4px rgba(211,84,0,0.3);
+}
+
+button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:6px;
+  background:#d35400;
+  color:#fff;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  transition:0.2s;
+}
+
+button:hover{
+  background:#e67e22;
+}
+
+button:disabled{
+  opacity:0.7;
+  cursor:not-allowed;
+}
+
+.spinner{
+  width:16px;
+  height:16px;
+  border:3px solid rgba(255,255,255,0.4);
+  border-top:3px solid white;
+  border-radius:50%;
+  animation:spin 0.8s linear infinite;
+  display:none;
+}
+
+@keyframes spin{
+  to{transform:rotate(360deg);}
+}
+
+#status{
+  margin-top:15px;
+  text-align:center;
+  font-weight:bold;
+}
+
+.success{
+  color:#27ae60;
+}
+
+.error{
+  color:#e74c3c;
+}
+
 </style>
 </head>
+
 <body>
 
-<iframe name="hidden_iframe" style="display:none;"></iframe>
+<div class="container">
 
-<form id="pedidoForm" target="hidden_iframe" action="https://api.snapitforms.com/submit" method="POST">
-  <input type="hidden" name="access_key" value="sf_7eeaa432963e3874d6b0c29ae489c818">
+<h1>Haz tu pedido</h1>
 
-  <h2>Haga su Pedido</h2>
+<form id="pedidoForm" action="https://formly.email/submit" method="POST">
 
-  <div class="form-group">
-    <label for="customer_name">Su nombre *</label>
-    <input type="text" name="customer_name" id="customer_name" placeholder="Su nombre" required>
-  </div>
+<input type="hidden" name="access_key" value="f214174db1774f02a0815c17424f751a">
 
-  <div class="form-group">
-    <label for="customer_phone">Número de teléfono *</label>
-    <input type="tel" name="customer_phone" id="customer_phone" placeholder="Número de teléfono" required>
-  </div>
+<input type="text" name="Nombre" placeholder="Nombre" required>
+<input type="tel" name="Numero" placeholder="Número" required>
+<input type="text" name="Direccion" placeholder="Dirección" required>
+<input type="text" name="Transaccion" placeholder="Transacción" required>
+<textarea name="Pedido" placeholder="¿Qué va a pedir?" required></textarea>
 
-  <div class="form-group">
-    <label for="direccion_entrega">Dirección *</label>
-    <textarea name="direccion_entrega" id="direccion_entrega" placeholder="Introduzca su dirección" required></textarea>
-  </div>
+<button type="submit">
+  <span id="btnText">Enviar Pedido</span>
+  <div class="spinner" id="spinner"></div>
+</button>
 
-  <div class="form-group">
-    <label for="detalle_pedido">¿Qué va a pedir? *</label>
-    <textarea name="detalle_pedido" id="detalle_pedido" placeholder="Por favor, sea lo más detallado posible" required></textarea>
-  </div>
-
-  <button type="submit" id="submitBtn">
-    <span class="btn-text">Enviar orden</span>
-    <span class="spinner"></span>
-  </button>
 </form>
 
-<!-- Modal de éxito -->
-<div id="modalSuccess" class="modal">
-  <div class="modal-content">
-    <h3>¡Pedido enviado con éxito!</h3>
-    <p>Gracias por tu pedido. Nos pondremos en contacto contigo pronto.</p>
-    <button class="close-btn">Cerrar</button>
-  </div>
-</div>
+<p id="status"></p>
 
-<!-- Modal de error -->
-<div id="modalError" class="modal">
-  <div class="modal-content">
-    <h3>Error al enviar el pedido</h3>
-    <p>No se pudo enviar el pedido. Verifica tu conexión e inténtalo de nuevo.</p>
-    <button class="close-btn">Cerrar</button>
-  </div>
 </div>
 
 <script>
+
 const form = document.getElementById('pedidoForm');
-const iframe = document.querySelector('iframe[name="hidden_iframe"]');
-const modalSuccess = document.getElementById('modalSuccess');
-const modalError = document.getElementById('modalError');
-const closeBtns = document.querySelectorAll('.close-btn');
-const submitBtn = document.getElementById('submitBtn');
-const spinner = submitBtn.querySelector('.spinner');
-const btnText = submitBtn.querySelector('.btn-text');
+const status = document.getElementById('status');
 
-let currentSubmissionId = 0; // identificador por envío
+const spinner = document.getElementById("spinner");
+const btnText = document.getElementById("btnText");
+const button = form.querySelector("button");
 
-function startLoading() {
-  spinner.style.display = 'block';
-  btnText.style.visibility = 'hidden';
-  submitBtn.disabled = true;
+form.addEventListener('submit', async function(e) {
+
+e.preventDefault();
+
+spinner.style.display="block";
+btnText.textContent="Enviando...";
+button.disabled=true;
+
+const formData = new FormData(form);
+
+try{
+
+const response = await fetch(form.action,{
+method:form.method,
+body:formData,
+});
+
+if(response.ok){
+
+status.textContent="¡Pedido enviado con éxito!";
+status.className="success";
+
+form.reset();
+
+}else{
+
+status.textContent="Error al enviar el pedido. Intenta nuevamente.";
+status.className="error";
+
 }
-function stopLoading() {
-  spinner.style.display = 'none';
-  btnText.style.visibility = 'visible';
-  submitBtn.disabled = false;
+
+}catch(err){
+
+status.textContent="Error al enviar el pedido. Verifica tu conexión.";
+status.className="error";
+
+console.error(err);
+
 }
 
-form.addEventListener('submit', () => {
-  // Nuevo envío
-  currentSubmissionId++;
-  const submissionId = currentSubmissionId;
+spinner.style.display="none";
+btnText.textContent="Enviar Pedido";
+button.disabled=false;
 
-  startLoading();
-
-  // Timeout: si el iframe no carga en 15s, mostrar error
-  const timeoutHandle = setTimeout(() => {
-    // Solo mostrar error si es el mismo envío activo
-    if(submissionId === currentSubmissionId) {
-      stopLoading();
-      modalError.style.display = 'block';
-    }
-  }, 15000);
-
-  // Listener temporal para el iframe
-  const onIframeLoad = () => {
-    if(submissionId === currentSubmissionId) {
-      clearTimeout(timeoutHandle);
-      stopLoading();
-      modalSuccess.style.display = 'block';
-      form.reset();
-    }
-    // Remover este listener para que no afecte futuros envíos
-    iframe.removeEventListener('load', onIframeLoad);
-  };
-
-  iframe.addEventListener('load', onIframeLoad);
 });
 
-// Cerrar modales
-closeBtns.forEach(btn => {
-  btn.addEventListener('click', () => {
-    btn.closest('.modal').style.display = 'none';
-  });
-});
-window.addEventListener('click', (e) => {
-  if(e.target.classList.contains('modal')) e.target.style.display = 'none';
-});
 </script>
 
 </body>
