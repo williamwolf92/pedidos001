@@ -1,7 +1,7 @@
 :root{
   --bg: #F5F5F5;
   --card: #ffffff;
-  --muted: #666;
+  --muted: #111;
   --accent: #004196;
   --gap: 12px;
   --pad: 16px;
@@ -77,7 +77,6 @@ body{
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  box-shadow:0 2px 6px rgba(0,0,0,0.15);
   line-height:1;
 }
 
@@ -388,13 +387,15 @@ body > section.menu-section{
   margin-bottom:8px
 }
 .form-row label{
-  font-size:13px;
-  color:var(--muted)
+  font-size:15px;
+  color:var(--muted);
+  margin-bottom:-5px;
+  margin-top:5px
 }
 .form-row input[type="text"], .form-row input[type="tel"], .form-row textarea, .form-row input[type="number"]{
   padding:8px;
   border-radius:8px;
-  border:2px solid #eaeaea;
+  border:2px solid #b5b5b5;
   background:#fff;
   font-size:14px
 }

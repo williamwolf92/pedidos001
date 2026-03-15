@@ -1,35 +1,18 @@
 {
-s:Nombre de sección 1
-p:Producto 1/5
-p:Producto 2/10
+s:Sección 1
+p:Mayonesa Vima 225ml/5/mayonesavima.jpg
+p:Papitas Pringle Original 124g/10/pringleoriginal.jpg
+p:Galletas Oreo (pqte. 6 galletas)/8/galletaoreo.jpg
 }
 
 {
-s:Nombre de sección 2
-p:Producto 1/4
-p:Producto 2/6
+s:Sección 2
+p:Producto 1/0
+p:Producto 2/0
 }
 
 {
-s:Nombre de sección 2
-p:Producto 1/4
-p:Producto 2/6
-}
-
-{
-s:Nombre de sección 2
-p:Producto 1/4
-p:Producto 2/6
-}
-
-{
-s:Nombre de sección 2
-p:Producto 1/4
-p:Producto 2/6
-}
-
-{
-s:Nombre de sección 2
-p:Producto 1/4
-p:Producto 2/6
+s:Sección 3
+p:Producto 1/0
+p:Producto 2/0
 }

@@ -2,7 +2,11 @@
 
 /* Minimal cart and UI glue added: openCartModal, renderCart, sidebar controls, helpers */
 
-const cart = []; // { item: {name, priceValue, priceDisplay}, qty }
+/* Cart is now persisted to localStorage. The in-memory 'cart' is an array of
+   { item: {name, priceValue, priceDisplay}, qty } objects. */
+
+const CART_STORAGE_KEY = 'mi_app_carrito_v1';
+const cart = []; // populated from storage
 
 function parsePrice(priceStr){
   // accept formats like "$ 3.00" or "3" etc.
@@ -96,18 +100,19 @@ async function loadAndRenderProducts() {
       const pLines = lines.filter(l => l.startsWith('p:'));
       const products = pLines.map(pl => {
         const raw = pl.replace(/^p:/, '').trim();
-        const lastSlash = raw.lastIndexOf('/');
-        let namePart = raw;
-        let priceNum = '';
-        if (lastSlash >= 0) {
-          namePart = raw.slice(0, lastSlash).trim();
-          priceNum = raw.slice(lastSlash + 1).trim();
-        }
-        const priceValue = Number(priceNum) || 0;
+        // Expect format: Nombre/PRECIO/imagen.jpg  (image optional)
+        const parts = raw.split('/');
+        const namePart = (parts[0] || '').trim();
+        const pricePart = (parts[1] || '').trim();
+        const imagePart = (parts[2] || '').trim();
+        const priceValue = Number(pricePart) || 0;
+        // images are located at root/img/<imagen.jpg> per spec
+        const imagePath = imagePart ? `img/${imagePart}` : '';
         return {
           name: namePart || 'Producto',
           priceValue,
-          priceDisplay: `$ ${priceValue.toFixed(2)}`
+          priceDisplay: `$ ${priceValue.toFixed(2)}`,
+          image: imagePath
         };
       });
 
@@ -166,6 +171,41 @@ function formatCurrency(n){
 
 const cartBadge = document.getElementById('cart-badge');
 
+/* Storage helpers */
+function saveCartToStorage(){
+  try {
+    const serial = JSON.stringify(cart);
+    localStorage.setItem(CART_STORAGE_KEY, serial);
+  } catch (e) {
+    // ignore storage errors
+  }
+}
+function loadCartFromStorage(){
+  try {
+    const raw = localStorage.getItem(CART_STORAGE_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return;
+    // clear current cart and push items (to keep same reference)
+    cart.length = 0;
+    parsed.forEach(entry => {
+      // basic validation/fallback
+      if (entry && entry.item && typeof entry.qty === 'number') {
+        cart.push({
+          item: {
+            name: String(entry.item.name || 'Producto'),
+            priceValue: Number(entry.item.priceValue) || 0,
+            priceDisplay: String(entry.item.priceDisplay || `$ ${ (Number(entry.item.priceValue) || 0).toFixed(2) }`)
+          },
+          qty: Number(entry.qty)
+        });
+      }
+    });
+  } catch (e) {
+    // ignore parse errors
+  }
+}
+
 function renderCart(){
   cartItemsList.innerHTML = '';
 
@@ -187,6 +227,8 @@ function renderCart(){
     li.textContent = 'Carrito vacío. Para añadir productos toque el nombre y seleccione la cantidad.';
     cartItemsList.appendChild(li);
     cartTotalEl.textContent = formatCurrency(0);
+    // save empty cart state
+    saveCartToStorage();
     return;
   }
   cart.forEach((entry, idx) => {
@@ -220,10 +262,12 @@ function renderCart(){
       if (entry.qty > 1) entry.qty--;
       else cart.splice(idx,1);
       renderCart();
+      saveCartToStorage();
     });
     incr.addEventListener('click', ()=>{
       entry.qty++;
       renderCart();
+      saveCartToStorage();
     });
 
     qtyWrap.appendChild(decr);
@@ -243,6 +287,9 @@ function renderCart(){
   if (typeof orderBtn !== 'undefined' && orderBtn) {
     orderBtn.disabled = cart.length === 0;
   }
+
+  // persist after rendering changes
+  saveCartToStorage();
 }
 
 /* --- Cart modal (add item) implementation --- */
@@ -265,6 +312,23 @@ function openCartModal(item){
   currentQty = 1;
   counterValueEl.textContent = String(currentQty);
   cartItemNameEl.textContent = item.name + ' - ' + item.priceDisplay;
+
+  // set image if available
+  const imgEl = document.getElementById('cart-item-image');
+  const placeholderEl = document.getElementById('cart-item-image-placeholder');
+  if (imgEl && placeholderEl) {
+    if (item.image) {
+      imgEl.src = item.image;
+      imgEl.alt = item.name;
+      imgEl.style.display = 'block';
+      placeholderEl.style.display = 'none';
+    } else {
+      imgEl.src = '';
+      imgEl.style.display = 'none';
+      placeholderEl.style.display = 'flex';
+    }
+  }
+
   cartModal.classList.remove('modal-hidden');
   cartModal.setAttribute('aria-hidden','false');
   // ensure sidebar closed while adding
@@ -296,6 +360,7 @@ cartAddBtn.addEventListener('click', ()=>{
   if (existing) existing.qty += currentQty;
   else cart.push({ item: currentSelecting, qty: currentQty });
   renderCart();
+  saveCartToStorage();
   closeCartModal();
   // do not open the sidebar automatically when adding an item
 });
@@ -307,9 +372,27 @@ const orderClose = document.getElementById('order-close');
 const orderCancel = document.getElementById('order-cancel');
 const formItems = document.getElementById('form-items');
 const formTotal = document.getElementById('form-total');
+const formDatetime = document.getElementById('form-datetime');
 const orderBtn = document.getElementById('order-btn');
 // make sure the button starts disabled if cart is empty
 if (orderBtn) orderBtn.disabled = true;
+
+function formatLocalDateTimeForForm(date){
+  // D/M/AAAA - h:mm tt  (tt = am/pm)
+  const d = date.getDate();
+  const m = date.getMonth() + 1;
+  const y = date.getFullYear();
+
+  let hours = date.getHours();
+  const minutes = date.getMinutes();
+  const ampm = hours >= 12 ? 'pm' : 'am';
+  hours = hours % 12;
+  if (hours === 0) hours = 12;
+
+  const pad = (n) => String(n).padStart(2, '0');
+
+  return `${d}/${m}/${y} - ${hours}:${pad(minutes)} ${ampm}`;
+}
 
 function openOrderModal(){
   // rellenar items y total en el formulario (texto no editable)
@@ -318,6 +401,16 @@ function openOrderModal(){
   formItems.value = lines;
   // format total as currency string like "$ 3.00"
   formTotal.value = formatCurrency(totalVal);
+
+  // set current device date/time in requested format
+  if (formDatetime) {
+    try {
+      formDatetime.value = formatLocalDateTimeForForm(new Date());
+    } catch (e) {
+      formDatetime.value = '';
+    }
+  }
+
   orderModal.classList.remove('modal-hidden');
   orderModal.setAttribute('aria-hidden','false');
   const nameInput = document.getElementById('cust-name');
@@ -388,6 +481,7 @@ if (pedidoForm) {
       // clear cart after successful order
       cart.length = 0;
       renderCart();
+      saveCartToStorage();
     } catch (err) {
       showStatus('Ocurrió un error, revise su conexion e intente de nuevo.', true);
     }
@@ -395,4 +489,5 @@ if (pedidoForm) {
 }
 
 /* Initialize cart UI state */
+loadCartFromStorage();
 renderCart();
