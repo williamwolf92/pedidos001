@@ -8,7 +8,9 @@
 </head>
 <body>
   <header id="app-header">
-    <button id="cart-toggle" aria-label="Abrir carrito">🛒<span id="cart-badge">0</span></button>
+    <button id="cart-toggle" aria-label="Abrir carrito">🛒
+      <span id="cart-badge" class="cart-badge" aria-hidden="true">0</span>
+    </button>
     <div class="header-title">Ver Carrito</div>
   </header>
 
@@ -107,7 +109,5 @@
   </div>
 
   <script type="module" src="app.js"></script>
-
-<div id="toast">Producto añadido</div>
 </body>
 </html>

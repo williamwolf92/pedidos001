@@ -2,24 +2,7 @@
 
 /* Minimal cart and UI glue added: openCartModal, renderCart, sidebar controls, helpers */
 
-const cart = JSON.parse(localStorage.getItem('cart')||'[]');
-
-const toast=document.getElementById('toast');
-const cartBadge=document.getElementById('cart-badge');
-
-function showToast(){
- if(!toast) return;
- toast.classList.add('show');
- setTimeout(()=>toast.classList.remove('show'),1500);
-}
-
-function updateBadge(){
- if(!cartBadge) return;
- let t=0;
- cart.forEach(i=>t+=i.qty);
- cartBadge.textContent=t;
-}
- // { item: {name, priceValue, priceDisplay}, qty }
+const cart = []; // { item: {name, priceValue, priceDisplay}, qty }
 
 function parsePrice(priceStr){
   // accept formats like "$ 3.00" or "3" etc.
@@ -181,8 +164,23 @@ function formatCurrency(n){
   return `$ ${Number(n).toFixed(2)}`;
 }
 
+const cartBadge = document.getElementById('cart-badge');
+
 function renderCart(){
   cartItemsList.innerHTML = '';
+
+  // compute total quantity for badge
+  const totalQty = cart.reduce((s,c)=> s + c.qty, 0);
+  if (cartBadge) {
+    cartBadge.textContent = String(totalQty);
+    cartBadge.style.display = totalQty > 0 ? 'inline-flex' : 'none';
+  }
+
+  // Disable/enable the "Ordenar" button based on cart contents (safe-guard if orderBtn not yet present)
+  if (typeof orderBtn !== 'undefined' && orderBtn) {
+    orderBtn.disabled = cart.length === 0;
+  }
+
   if (cart.length === 0){
     const li = document.createElement('li');
     li.className = 'cart-row';
@@ -222,12 +220,10 @@ function renderCart(){
       if (entry.qty > 1) entry.qty--;
       else cart.splice(idx,1);
       renderCart();
-updateBadge();
     });
     incr.addEventListener('click', ()=>{
       entry.qty++;
       renderCart();
-updateBadge();
     });
 
     qtyWrap.appendChild(decr);
@@ -242,6 +238,11 @@ updateBadge();
 
   const total = cart.reduce((s,c)=> s + c.qty * c.item.priceValue, 0);
   cartTotalEl.textContent = formatCurrency(total);
+
+  // Ensure order button is enabled when there are items (in case it wasn't set earlier)
+  if (typeof orderBtn !== 'undefined' && orderBtn) {
+    orderBtn.disabled = cart.length === 0;
+  }
 }
 
 /* --- Cart modal (add item) implementation --- */
@@ -257,6 +258,7 @@ const cartItemNameEl = document.getElementById('cart-item-name');
 
 let currentSelecting = null;
 let currentQty = 1;
+let orderOpenTimeoutId = null;
 
 function openCartModal(item){
   currentSelecting = item;
@@ -294,7 +296,6 @@ cartAddBtn.addEventListener('click', ()=>{
   if (existing) existing.qty += currentQty;
   else cart.push({ item: currentSelecting, qty: currentQty });
   renderCart();
-updateBadge();
   closeCartModal();
   // do not open the sidebar automatically when adding an item
 });
@@ -307,6 +308,8 @@ const orderCancel = document.getElementById('order-cancel');
 const formItems = document.getElementById('form-items');
 const formTotal = document.getElementById('form-total');
 const orderBtn = document.getElementById('order-btn');
+// make sure the button starts disabled if cart is empty
+if (orderBtn) orderBtn.disabled = true;
 
 function openOrderModal(){
   // rellenar items y total en el formulario (texto no editable)
@@ -329,7 +332,12 @@ function closeOrderModal(){
 if (orderBtn){
   orderBtn.addEventListener('click', ()=>{
     closeSidebar();
-    openOrderModal();
+    // ensure only one pending open timeout at a time
+    if (orderOpenTimeoutId) clearTimeout(orderOpenTimeoutId);
+    orderOpenTimeoutId = setTimeout(()=>{
+      openOrderModal();
+      orderOpenTimeoutId = null;
+    }, 600);
   });
 }
 if (orderClose) orderClose.addEventListener('click', closeOrderModal);
@@ -380,7 +388,6 @@ if (pedidoForm) {
       // clear cart after successful order
       cart.length = 0;
       renderCart();
-updateBadge();
     } catch (err) {
       showStatus('Ocurrió un error, revise su conexion e intente de nuevo.', true);
     }
@@ -389,4 +396,3 @@ updateBadge();
 
 /* Initialize cart UI state */
 renderCart();
-updateBadge();
