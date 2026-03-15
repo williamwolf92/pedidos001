@@ -1,196 +1,113 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Pedido Restaurante</title>
-
-<style>
-
-body{
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg,#fff3e6,#ffe0cc);
-  height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  margin:0;
-}
-
-.container{
-  width:100%;
-  max-width:420px;
-}
-
-h1{
-  text-align:center;
-  color:#d35400;
-  margin-bottom:20px;
-}
-
-form{
-  background:#fff;
-  padding:25px;
-  border-radius:12px;
-  box-shadow:0 8px 20px rgba(0,0,0,0.15);
-}
-
-input, textarea{
-  width:100%;
-  margin-bottom:14px;
-  padding:12px;
-  border-radius:6px;
-  border:1px solid #ddd;
-  font-size:15px;
-  box-sizing:border-box;
-  transition:0.2s;
-}
-
-input:focus, textarea:focus{
-  border-color:#d35400;
-  outline:none;
-  box-shadow:0 0 4px rgba(211,84,0,0.3);
-}
-
-button{
-  width:100%;
-  padding:12px;
-  border:none;
-  border-radius:6px;
-  background:#d35400;
-  color:#fff;
-  font-size:16px;
-  font-weight:bold;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-  transition:0.2s;
-}
-
-button:hover{
-  background:#e67e22;
-}
-
-button:disabled{
-  opacity:0.7;
-  cursor:not-allowed;
-}
-
-.spinner{
-  width:16px;
-  height:16px;
-  border:3px solid rgba(255,255,255,0.4);
-  border-top:3px solid white;
-  border-radius:50%;
-  animation:spin 0.8s linear infinite;
-  display:none;
-}
-
-@keyframes spin{
-  to{transform:rotate(360deg);}
-}
-
-#status{
-  margin-top:15px;
-  text-align:center;
-  font-weight:bold;
-}
-
-.success{
-  color:#27ae60;
-}
-
-.error{
-  color:#e74c3c;
-}
-
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>Carta de Ofertas</title>
 </head>
-
 <body>
+  <header id="app-header">
+    <button id="cart-toggle" aria-label="Abrir carrito">🛒<span id="cart-badge">0</span></button>
+    <div class="header-title">Ver Carrito</div>
+  </header>
 
-<div class="container">
+  <!-- Left sidebar cart -->
+  <aside id="cart-sidebar" class="cart-collapsed" aria-hidden="true">
+    <header class="cart-header">
+      <h3>Tu carrito</h3>
+    </header>
+    <div class="cart-body">
+      <ul id="cart-items-list" class="cart-items-list"></ul>
+    </div>
+    <footer class="cart-footer">
+      <div class="cart-total-row">
+        <span>Total</span>
+        <strong id="cart-total">$ 0.00</strong>
+      </div>
+      <button id="order-btn" class="btn btn-primary">Ordenar</button>
+    </footer>
+  </aside>
 
-<h1>Haz tu pedido</h1>
+    <main id="menu-container" aria-live="polite"></main>
 
-<form id="pedidoForm" action="https://formly.email/submit" method="POST">
+  <!-- Modal de Carrito (añadir) -->
+  <div id="cart-modal" class="modal-hidden" aria-hidden="true">
+    <div class="modal-backdrop" id="cart-backdrop"></div>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="cart-title">
+      <header class="modal-header">
+        <h3 id="cart-title">Añadir al carrito</h3>
+        <button id="cart-close" class="modal-close" aria-label="Cerrar">✕</button>
+      </header>
 
-<input type="hidden" name="access_key" value="f214174db1774f02a0815c17424f751a">
+      <div class="modal-body">
+        <div class="item-name" id="cart-item-name"></div>
 
-<input type="text" name="Nombre" placeholder="Nombre" required>
-<input type="tel" name="Numero" placeholder="Número" required>
-<input type="text" name="Direccion" placeholder="Dirección" required>
-<input type="text" name="Transaccion" placeholder="Transacción" required>
-<textarea name="Pedido" placeholder="¿Qué va a pedir?" required></textarea>
+        <div class="counter-row">
+          <button id="counter-decr" class="counter-btn" aria-label="Disminuir">−</button>
+          <div id="counter-value" class="counter-value">1</div>
+          <button id="counter-incr" class="counter-btn" aria-label="Aumentar">+</button>
+        </div>
+      </div>
 
-<button type="submit">
-  <span id="btnText">Enviar Pedido</span>
-  <div class="spinner" id="spinner"></div>
-</button>
+      <footer class="modal-footer">
+        <button id="cart-add" class="btn btn-primary">Añadir</button>
+        <button id="cart-cancel" class="btn">Cerrar</button>
+      </footer>
+    </div>
+  </div>
 
-</form>
+  <!-- Ordenar: formulario modal integrado con formly.email -->
+  <div id="order-modal" class="modal-hidden" aria-hidden="true">
+    <div class="modal-backdrop" id="order-backdrop"></div>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="order-title">
+      <header class="modal-header">
+        <h3 id="order-title">Completa tu pedido</h3>
+        <button id="order-close" class="modal-close" aria-label="Cerrar">✕</button>
+      </header>
 
-<p id="status"></p>
+      <div class="modal-body">
+        <form id="pedidoForm" action="https://formly.email/submit" method="POST">
+          <input type="hidden" name="access_key" value="871e30b4464f48868d7928f741fcef3f">
+          <div class="form-row">
+            <label>Nombre</label>
+            <input type="text" name="Nombre" id="cust-name" required />
+          </div>
+          <div class="form-row">
+            <label>Teléfono</label>
+            <input type="tel" name="Telefono" id="cust-phone" required />
+          </div>
+          <div class="form-row">
+            <label>Dirección</label>
+            <input type="text" name="Direccion" id="cust-address" required />
+          </div>
 
-</div>
+          <div class="form-row">
+            <label>Productos pedidos</label>
+            <textarea name="Productos" id="form-items" rows="4" readonly></textarea>
+          </div>
 
-<script>
+          <div class="form-row">
+            <label>Total a pagar</label>
+            <input type="text" name="Pago" id="form-total" readonly />
+          </div>
 
-const form = document.getElementById('pedidoForm');
-const status = document.getElementById('status');
+          <footer class="modal-footer">
+            <button type="submit" class="btn btn-primary">Enviar pedido</button>
+            <button type="button" id="order-cancel" class="btn">Cerrar</button>
+          </footer>
+        </form>
+      </div>
+    </div>
+  </div>
 
-const spinner = document.getElementById("spinner");
-const btnText = document.getElementById("btnText");
-const button = form.querySelector("button");
+  <!-- Modal de estado (éxito / error de envío) -->
+  <div id="status-modal" class="status-modal status-hidden" aria-hidden="true">
+    <div class="status-card" id="status-text"></div>
+  </div>
 
-form.addEventListener('submit', async function(e) {
+  <script type="module" src="app.js"></script>
 
-e.preventDefault();
-
-spinner.style.display="block";
-btnText.textContent="Enviando...";
-button.disabled=true;
-
-const formData = new FormData(form);
-
-try{
-
-const response = await fetch(form.action,{
-method:form.method,
-body:formData,
-});
-
-if(response.ok){
-
-status.textContent="¡Pedido enviado con éxito!";
-status.className="success";
-
-form.reset();
-
-}else{
-
-status.textContent="Error al enviar el pedido. Intenta nuevamente.";
-status.className="error";
-
-}
-
-}catch(err){
-
-status.textContent="Error al enviar el pedido. Verifica tu conexión.";
-status.className="error";
-
-console.error(err);
-
-}
-
-spinner.style.display="none";
-btnText.textContent="Enviar Pedido";
-button.disabled=false;
-
-});
-
-</script>
-
+<div id="toast">Producto añadido</div>
 </body>
 </html>

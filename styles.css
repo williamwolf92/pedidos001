@@ -1,0 +1,446 @@
+:root{
+  --bg: #F5F5F5;
+  --card: #ffffff;
+  --muted: #666;
+  --accent: #004196;
+  --gap: 12px;
+  --pad: 16px;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+*{box-sizing:border-box}
+html,body{
+  height:100%;
+  margin:0;
+  color:#222}
+
+/* Solid neutral background (no image) */
+body{
+  background-color: #F5F5F5;
+  /* layout: sections are direct children of body; header and sidebar are fixed */
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap:18px;
+  padding:18px;
+  padding-top:92px;
+  justify-content:center;
+  align-items:start;
+}
+
+/* Fixed header */
+#app-header{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  height:60px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:8px 16px;
+  background: rgb(255,255,255);
+  box-shadow:0 6px 18px rgb(180,180,180);
+  z-index:100;
+}
+#app-header .header-title{
+  font-weight:700;
+  color:var(--accent);
+  font-size:18px;
+}
+#cart-toggle{
+  width:44px;
+  height:44px;
+  border-radius:8px;
+  border:2px solid #b5b5b5;
+  background: rgb(255,255,255);
+  cursor:pointer;
+  font-size:18px;
+}
+
+/* Sidebar cart - sliding left panel */
+#cart-sidebar{
+  position:fixed;
+  top:70px;
+  left:0;
+  width:300px;
+  height:calc(100% - 90px);
+  background: rgb(255,255,255);
+  border-radius:0 12px 12px 0;
+  box-shadow:0 15px 15px rgb(180,180,180);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  transform:translateX(-104%);
+  transition:transform 500ms ease;
+  z-index:95;
+}
+body.cart-open #cart-sidebar{
+  transform:translateX(0);
+}
+.cart-collapsed{
+  display:flex
+}
+.cart-header{
+  padding:12px 14px;
+  border-bottom:1px solid rgb(0,0,0)
+}
+.cart-header h3{
+  margin:0;
+  color:var(--accent)
+}
+.cart-body{
+  padding:10px;
+  flex:1;
+  overflow:auto
+}
+.cart-items-list{
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:flex;
+  flex-direction:column;
+  gap:8px
+}
+.cart-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:8px
+}
+.cart-row-left{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  margin-right:8px
+}
+.cart-row-name{
+  font-size:14px;
+  font-weight:600
+}
+.cart-row-price{
+  font-size:13px;
+  color:var(--muted)
+}
+.cart-qty{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin-right:8px
+}
+.qty-btn{
+  width:30px;
+  height:30px;
+  border-radius:6px;
+  border:2px solid #b5b5b5;
+  background: rgb(255,255,255);
+  cursor:pointer
+}
+.qty-val{
+  min-width:28px;
+  text-align:center;
+  font-weight:700
+}
+.btn-sm{
+  padding:6px 8px;
+  border-radius:6px;
+  border:1px solid rgb(0,0,0);
+  background: rgb(255,255,255);
+  cursor:pointer;
+  font-size:12px
+}
+.cart-footer{
+  padding:12px;
+  border-top:1px solid rgb(0,0,0);
+  background: rgb(255,255,255);
+}
+.cart-total-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:8px;
+  font-weight:700
+}
+.btn{
+  padding:8px 12px;
+  border-radius:8px;
+  border:2px solid #b5b5b5;
+  background: rgb(255,255,255);
+  cursor:pointer
+}
+.btn-primary{
+  background:var(--accent);
+  color:#fff;
+  border-color:transparent
+}
+
+/* Main content: sections */
+body > section.menu-section{
+  max-width:360px;
+  width:100%;
+  margin:0;
+}
+
+/* On narrow viewports show one column and stack layout vertically */
+@media (max-width:840px){
+  body{
+    display:block;
+    padding:12px;
+    padding-top:75px;
+  }
+  #cart-sidebar{
+    width:calc(100% - 10px);
+    order:0
+  }
+  body > section.menu-section{
+    max-width:100%;
+    margin-bottom:12px;
+  }
+}
+
+/* Section styling: use solid card background */
+.menu-section{
+  padding:12px;
+  margin-bottom: 20px;
+  border-radius:10px;
+  background: rgb(255,255,255);
+  box-shadow:0 6px 18px rgb(180,180,180);
+  border:1px solid rgb(255,255,255);
+}
+.menu-section h2{
+  margin:0 0 10px 0;
+  font-size:16px;
+  color:var(--accent);
+  letter-spacing:0.2px;
+}
+
+/* Offer list: left-aligned label, right-aligned price */
+.offer-list{
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:block
+}
+.offer-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  padding:10px 8px;
+  border-bottom:1px dashed rgb(0,0,0);
+}
+.offer-item:last-child{
+  border-bottom:0
+}
+.offer-name{
+  display:block;
+  font-size:15px;
+  color:#111;
+}
+
+.offer-price{
+  min-width:56px;
+  text-align:right;
+  font-weight:600;
+  color:#111;
+  font-size:15px;
+}
+
+/* Small touch target spacing for mobile */
+@media (max-width:640px){
+  .offer-item{padding:14px 8px}
+  .menu-section{padding:10px 6px}
+}
+
+/* Modal carrito */
+#cart-modal.modal-hidden{
+  display:none
+}
+#cart-modal{
+  position:fixed;
+  inset:0;
+  z-index:80;
+  display:flex;
+  align-items:center;
+  justify-content:center
+}
+.modal-backdrop{
+  position:absolute;
+  inset:0;
+  background: rgba(0,0,0,0.3);
+}
+.modal-card{
+  position:relative;
+  background:var(--card);
+  border-radius:10px;
+  box-shadow:0 10px 30px rgb(180,180,180);
+  width:min(420px,92%);
+  padding:12px 14px;
+  z-index:90;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.modal-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding-bottom:6px;
+  border-bottom:1px solid #f2f2f2
+}
+.modal-header h3{
+  margin:0;
+  font-size:16px;
+  color:var(--accent)
+}
+.modal-close{
+  background:transparent;
+  border:0;
+  font-size:18px;
+  line-height:1;
+  padding:6px;
+  cursor:pointer;
+  color:var(--muted)
+}
+.modal-body{
+  padding-top:6px;
+  padding-bottom:6px;
+  display:flex;
+  flex-direction:column;
+  gap:12px
+}
+.item-name{
+  font-weight:600;
+  color:#111
+}
+.counter-row{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px
+}
+.counter-btn{
+  width:44px;
+  height:44px;
+  border-radius:8px;
+  border:2px solid #b5b5b5;
+  background:#fff;
+  font-size:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer
+}
+.counter-value{
+  min-width:44px;
+  text-align:center;
+  font-weight:700
+}
+.modal-footer{
+  display:flex;
+  gap:8px;
+  justify-content:flex-end;
+  padding-top:6px;
+  border-top:1px solid #f2f2f2
+}
+
+/* Form modal styles (order) */
+#order-modal.modal-hidden{
+  display:none
+}
+#order-modal{
+  position:fixed;
+  inset:0;
+  z-index:96;
+  display:flex;
+  align-items:center;
+  justify-content:center
+}
+#order-modal .modal-card{
+  width:min(520px,96%)
+}
+.form-row{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  margin-bottom:8px
+}
+.form-row label{
+  font-size:13px;
+  color:var(--muted)
+}
+.form-row input[type="text"], .form-row input[type="tel"], .form-row textarea, .form-row input[type="number"]{
+  padding:8px;
+  border-radius:8px;
+  border:2px solid #eaeaea;
+  background:#fff;
+  font-size:14px
+}
+
+.form-row input[type="text"]:focus,
+.form-row input[type="tel"]:focus,
+.form-row textarea:focus,
+.form-row input[type="number"]:focus{
+  border-color: #004196;
+  outline: none;
+}
+
+/* Status modal (toast-like) */
+.status-modal{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  z-index:120;
+  pointer-events:none;
+}
+.status-hidden{
+  display:none;
+}
+.status-card{
+  margin-top:80px;
+  background:#ffffff;
+  border-radius:999px;
+  padding:10px 18px;
+  font-size:14px;
+  max-width:90%;
+  text-align:center;
+}
+.status-modal.status-success .status-card{
+  border:2px solid #4caf50;
+  color:#256029;
+}
+.status-modal.status-error .status-card{
+  border:2px solid #f44336;
+  color:#b71c1c;
+}
+
+/* --- mejoras UX --- */
+#cart-toggle{position:relative}
+#cart-badge{
+position:absolute;
+top:-6px;
+right:-6px;
+background:#ff3b30;
+color:#fff;
+font-size:11px;
+padding:2px 6px;
+border-radius:20px;
+}
+
+#toast{
+position:fixed;
+bottom:20px;
+left:50%;
+transform:translateX(-50%);
+background:#333;
+color:#fff;
+padding:8px 14px;
+border-radius:20px;
+opacity:0;
+transition:opacity .3s;
+z-index:200;
+}
+#toast.show{opacity:1}
+
+.offer-item{transition:background .2s, transform .15s}
+.offer-item:hover{background:#f3f3f3; transform:scale(1.02)}
