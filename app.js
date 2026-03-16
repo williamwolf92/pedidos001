@@ -396,7 +396,7 @@ function formatLocalDateTimeForForm(date){
 
 function openOrderModal(){
   // rellenar items y total en el formulario (texto no editable)
-  const lines = cart.map(c => `${c.qty} x ${c.item.name} (${c.item.priceDisplay}) || `).join('\n');
+  const lines = cart.map(c => `${c.qty} x ${c.item.name} (${c.item.priceDisplay}) `).join('\n');
   const totalVal = cart.reduce((s,c)=> s + c.item.priceValue * c.qty, 0);
   formItems.value = lines;
   // format total as currency string like "$ 3.00"
@@ -483,7 +483,7 @@ if (pedidoForm) {
       renderCart();
       saveCartToStorage();
     } catch (err) {
-      showStatus('Ocurrió un error, revise su conexion e intente de nuevo.', true);
+      showStatus('Error de envío, revise su conexion e intente de nuevo.', true);
     }
   });
 }

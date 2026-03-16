@@ -77,21 +77,22 @@
       </header>
 
       <div class="modal-body">
-        <form id="pedidoForm" action="https://formly.email/submit" method="POST">
-          <input type="hidden" name="access_key" value="f214174db1774f02a0815c17424f751a">
+        <form id="pedidoForm" action="https://api.web3forms.com/submit" method="POST">
+          <input type="hidden" name="access_key" value="df0bb44d-cde2-4012-a7b2-22958889284c">
+          <input type="hidden" name="subject" value="Nuevo pedido de cliente">
           <div class="form-row">
             <label>Nombre</label>
-            <input type="text" name="Nombre" id="cust-name" placeholder="Introduzca su nombre" required />
+            <input type="text" name="Nombre:" id="cust-name" placeholder="Introduzca su nombre" required />
           </div>
           <div class="form-row">
             <label>Teléfono</label>
-            <input type="tel" name="Telefono" id="cust-phone" placeholder="Introduzca su número de teléfono" required />
+            <input type="tel" name="Telefono:" id="cust-phone" placeholder="Introduzca su número de teléfono" required />
           </div>
           <div class="form-row">
             <label>PIN</label>
             <input
 +              type="number"
-+              name="PIN"
++              name="PIN:"
 +              id="cust-pin"
 +              inputmode="numeric"
 +              pattern="\d{1,4}"
@@ -105,19 +106,19 @@
 
           <div class="form-row">
             <label>Productos pedidos</label>
-            <textarea name="Productos" id="form-items" rows="4" readonly></textarea>
+            <textarea name="Productos:" id="form-items" rows="4" readonly></textarea>
           </div>
 
           <div class="form-row">
             <label>Total a pagar</label>
-            <input type="text" name="Total a pagar" id="form-total" readonly />
+            <input type="text" name="Total a pagar:" id="form-total" readonly />
           </div>
 
           <div class="form-row">
             <label>Fecha y hora</label>
             <input
               type="text"
-              name="Fecha y hora"
+              name="Fecha y hora:"
               id="form-datetime"
               readonly
               aria-readonly="true"
