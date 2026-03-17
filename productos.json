@@ -1,8 +1,8 @@
 {
 s:Sección 1
-p:Mayonesa Vima 225ml/5/mayonesavima.jpg
-p:Papitas Pringle Original 124g/10/pringleoriginal.jpg
-p:Galletas Oreo (pqte. 6 galletas)/8/galletaoreo.jpg
+p:Mayonesa Casera Vima (255ml)/5/mayonesavima.jpg
+p:Pringle Original/10/pringleoriginal.jpg
+p:Galletas Oreo (pqt. 6 galletas)/8/galletaoreo.jpg
 }
 
 {
@@ -13,6 +13,24 @@ p:Producto 2/0
 
 {
 s:Sección 3
+p:Producto 1/0
+p:Producto 2/0
+}
+
+{
+s:Sección 4
+p:Producto 1/0
+p:Producto 2/0
+}
+
+{
+s:Sección 5
+p:Producto 1/0
+p:Producto 2/0
+}
+
+{
+s:Sección 6
 p:Producto 1/0
 p:Producto 2/0
 }

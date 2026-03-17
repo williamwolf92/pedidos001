@@ -458,8 +458,47 @@ function showStatus(message, isError){
 }
 
 if (pedidoForm) {
+  const submitBtn = pedidoForm.querySelector('button[type="submit"]');
+  const inputName = document.getElementById('cust-name');
+  const inputPhone = document.getElementById('cust-phone');
+  const inputPin = document.getElementById('cust-pin');
+
+  // helper to set disabled state and content
+  function setSubmitState(enabled) {
+    if (!submitBtn) return;
+    submitBtn.disabled = !enabled;
+  }
+
+  // real-time validation: all three must be non-empty and PIN must be exactly 4 digits
+  function validateFormInputs() {
+    const nameOk = inputName && inputName.value.trim().length > 0;
+    const phoneOk = inputPhone && inputPhone.value.trim().length > 0;
+    const pinOk = inputPin && String(inputPin.value).trim().length === 4;
+    setSubmitState(nameOk && phoneOk && pinOk);
+  }
+
+  // attach listeners
+  [inputName, inputPhone, inputPin].forEach(el => {
+    if (!el) return;
+    el.addEventListener('input', validateFormInputs);
+    el.addEventListener('change', validateFormInputs);
+  });
+
+  // initial validation state
+  validateFormInputs();
+
   pedidoForm.addEventListener('submit', async (e)=>{
     e.preventDefault();
+
+    // final check before sending
+    if (submitBtn && submitBtn.disabled) return;
+
+    const originalBtnText = submitBtn ? submitBtn.textContent : 'Enviar pedido';
+    // toggle to sending state
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Enviando...';
+    }
 
     const formData = new FormData(pedidoForm);
 
@@ -484,6 +523,18 @@ if (pedidoForm) {
       saveCartToStorage();
     } catch (err) {
       showStatus('Error de envío, revise su conexion e intente de nuevo.', true);
+    } finally {
+      // restore submit button (after a short timeout so user sees change)
+      setTimeout(()=>{
+        if (submitBtn) {
+          // remove spinner if present
+          const spinner = submitBtn.querySelector('.btn-spinner');
+          if (spinner) spinner.remove();
+          submitBtn.textContent = originalBtnText;
+          // re-validate inputs to set enabled/disabled appropriately
+          validateFormInputs();
+        }
+      }, 600);
     }
   });
 }
