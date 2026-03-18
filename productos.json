@@ -1,36 +1,38 @@
 {
-s:Sección 1
-p:Mayonesa Casera Vima (255ml)/5/mayonesavima.jpg
-p:Pringle Original/10/pringleoriginal.jpg
-p:Galletas Oreo (pqt. 6 galletas)/8/galletaoreo.jpg
+s:PRUEBA
+p:Mayonesa Casera Vima (255ml)/1/mayonesavima.jpg
+p:Pringle Original/1/pringleoriginal.jpg
 }
 
 {
-s:Sección 2
-p:Producto 1/0
-p:Producto 2/0
+s:BEBIDAS
+p:Refresco Brio Naranja/1/brionaranja.png
+p:Refresco Brio Cola/1/briocola.png
+p:Cerveza Calatrava/1/cerv-calatrava.webp
+p:Cerveza Unlaguer/1/cerv-unlaguer.png
 }
 
 {
-s:Sección 3
-p:Producto 1/0
-p:Producto 2/0
+s:CONFITURAS
+p:Galletas Oreo (pqt. 6 galletas)/1/galletaoreo.jpg
 }
 
 {
-s:Sección 4
-p:Producto 1/0
-p:Producto 2/0
+s:ENLATADOS
+p:Pasta de Tomate Vima (400g)/1/pastatomatevima.jpg
+}
+
+{
+s:PAQUETES
+p:Arroz (1kg)/1
+p:Frijoles (1kg)/1
+p:Azúcar Blanca (1kg)/1
 }
 
 {
 s:Sección 5
-p:Producto 1/0
-p:Producto 2/0
 }
 
 {
 s:Sección 6
-p:Producto 1/0
-p:Producto 2/0
 }
