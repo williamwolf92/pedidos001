@@ -102,11 +102,11 @@
             <input type="text" name="Nombre" id="cust-name" placeholder="Introduzca su nombre" required />
           </div>
           <div style="display:flex;gap:8px;">
-            <div class="form-row" style="flex:1width:100px;;">
+            <div class="form-row" style="flex:1;">
               <label>Teléfono</label>
               <input type="tel" name="Telefono" id="cust-phone" placeholder="Introduzca su número de teléfono" required />
             </div>
-            <div class="form-row" style="flex:1;width:100px;">
+            <div class="form-row" style="flex:1;">
               <label>PIN</label>
               <input
                 type="number"
@@ -117,7 +117,7 @@
                 min="0"
                 max="9999"
                 required
-                placeholder="Debe ser de 4 dígitos"
+                placeholder="Debe tener 4 dígitos"
                 oninput="this.value = this.value.replace(/[^0-9]/g,'').slice(0,4);"
               />
             </div>
@@ -126,13 +126,18 @@
           <div class="form-row">
             <label>Tipo de entrega</label>
             <div style="display:flex;gap:12px;align-items:center;">
-              <label style="display:flex;align-items:center;gap:8px;">
-                <input type="radio" name="Entrega" value="Tienda" /> Ir a la tienda
+              <label style="display:flex;align-items:center;gap:0px;">
+                <input style="margin-bottom:4px;" type="radio" name="Entrega" value="Tienda" />Ir a la tienda
               </label>
-              <label style="display:flex;align-items:center;gap:8px;">
-                <input type="radio" name="Entrega" value="Domicilio" /> Traer a domicilio
+              <label style="display:flex;align-items:center;gap:0px;">
+                <input style="margin-bottom:4px;" type="radio" name="Entrega" value="Domicilio" />Traer a domicilio
               </label>
             </div>
+          </div>
+
+          <div class="form-row">
+            <label>Dirección (sólo si pide domicilio)</label>
+            <input type="text" name="Direccion" id="cust-address" placeholder="Por favor, especifique bien su dirección" disabled />
           </div>
 
           <div class="form-row">
@@ -141,11 +146,11 @@
           </div>
 
           <div style="display:flex;gap:8px;">
-            <div class="form-row" style="flex:1;width:150px;">
+            <div class="form-row" style="flex:1;width:30px;">
               <label>Total a pagar</label>
               <input type="text" name="Total a pagar" id="form-total" readonly />
             </div>
-            <div class="form-row" style="flex:1;width:100px;">
+            <div class="form-row" style="flex:1;">
               <label>Fecha y hora</label>
               <input
                 type="text"

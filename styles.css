@@ -194,6 +194,19 @@ body.cart-open #cart-sidebar{
   border-color:transparent
 }
 
+/* Disabled button appearance: use neutral grey #969696 for text, background and border */
+.btn:disabled,
+.btn[disabled],
+.btn-primary:disabled,
+.btn-primary[disabled]{
+  background: #969696;
+  color: #ffffff;
+  border-color: #969696;
+  opacity: 1; /* keep consistent color rather than faded */
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 /* Main content: sections */
 body > section.menu-section{
   max-width:360px;
@@ -228,10 +241,9 @@ body > section.menu-section{
   box-shadow:0 6px 10px rgba(0,0,0,0.3);
 }
 .menu-section h2{
-  margin:0 0 10px 0;
+  margin:0 0 0 7px;
   font-size:16px;
   color:var(--accent);
-  letter-spacing:0.2px;
 }
 
 /* Offer list: left-aligned label, right-aligned price */
@@ -249,7 +261,8 @@ body > section.menu-section{
   border-bottom:1px dashed rgb(0,0,0);
 }
 .offer-item:last-child{
-  border-bottom:0
+  border-bottom:0;
+  margin-bottom:-5px;
 }
 .offer-name{
   display:block;
@@ -305,7 +318,7 @@ body > section.menu-section{
   align-items:center;
   justify-content:space-between;
   padding-bottom:6px;
-  border-bottom:1px solid #f2f2f2
+  border-bottom:1px solid #969696
 }
 .modal-header h3{
   margin:0;
@@ -362,7 +375,6 @@ body > section.menu-section{
   gap:8px;
   justify-content:flex-end;
   padding-top:6px;
-  border-top:1px solid #f2f2f2
 }
 
 /* Form modal styles (order) */

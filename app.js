@@ -464,6 +464,7 @@ if (pedidoForm) {
   const inputName = document.getElementById('cust-name');
   const inputPhone = document.getElementById('cust-phone');
   const inputPin = document.getElementById('cust-pin');
+  const inputAddress = document.getElementById('cust-address');
   // delivery radio buttons (name="Entrega")
   const deliveryRadios = Array.from(pedidoForm.querySelectorAll('input[name="Entrega"]'));
 
@@ -473,22 +474,43 @@ if (pedidoForm) {
     submitBtn.disabled = !enabled;
   }
 
+  // When delivery selection changes, toggle the address input enabled/disabled
+  function updateAddressState() {
+    if (!inputAddress) return;
+    const domicileSelected = deliveryRadios.some(r => r.checked && r.value === 'Domicilio');
+    inputAddress.disabled = !domicileSelected;
+    if (!domicileSelected) {
+      inputAddress.value = ''; // clear when not needed
+    }
+  }
+
   // real-time validation: name, phone, PIN (4 dígitos) y una opción de entrega seleccionada
+  // if "Domicilio" selected, Dirección debe no estar vacía para habilitar el envío
   function validateFormInputs() {
     const nameOk = inputName && inputName.value.trim().length > 0;
     const phoneOk = inputPhone && inputPhone.value.trim().length > 0;
     const pinOk = inputPin && String(inputPin.value).trim().length === 4;
     const deliveryOk = deliveryRadios.some(r => r.checked);
-    setSubmitState(nameOk && phoneOk && pinOk && deliveryOk);
+    const domicileSelected = deliveryRadios.some(r => r.checked && r.value === 'Domicilio');
+
+    const addressOk = !domicileSelected || (inputAddress && inputAddress.value.trim().length > 0);
+
+    setSubmitState(nameOk && phoneOk && pinOk && deliveryOk && addressOk);
   }
 
   // attach listeners to inputs and radios
-  [inputName, inputPhone, inputPin].forEach(el => {
+  [inputName, inputPhone, inputPin, inputAddress].forEach(el => {
     if (!el) return;
     el.addEventListener('input', validateFormInputs);
     el.addEventListener('change', validateFormInputs);
   });
-  deliveryRadios.forEach(r => r.addEventListener('change', validateFormInputs));
+  deliveryRadios.forEach(r => r.addEventListener('change', ()=>{
+    updateAddressState();
+    validateFormInputs();
+  }));
+
+  // ensure initial state for address and submit button
+  updateAddressState();
 
   // initial validation state
   validateFormInputs();
