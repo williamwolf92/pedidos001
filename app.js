@@ -374,8 +374,10 @@ const formItems = document.getElementById('form-items');
 const formTotal = document.getElementById('form-total');
 const formDatetime = document.getElementById('form-datetime');
 const orderBtn = document.getElementById('order-btn');
+const cartCloseBtn = document.getElementById('cart-close-btn');
 // make sure the button starts disabled if cart is empty
 if (orderBtn) orderBtn.disabled = true;
+if (cartCloseBtn) cartCloseBtn.addEventListener('click', closeSidebar);
 
 function formatLocalDateTimeForForm(date){
   // D/M/AAAA - h:mm tt  (tt = am/pm)
@@ -462,6 +464,8 @@ if (pedidoForm) {
   const inputName = document.getElementById('cust-name');
   const inputPhone = document.getElementById('cust-phone');
   const inputPin = document.getElementById('cust-pin');
+  // delivery radio buttons (name="Entrega")
+  const deliveryRadios = Array.from(pedidoForm.querySelectorAll('input[name="Entrega"]'));
 
   // helper to set disabled state and content
   function setSubmitState(enabled) {
@@ -469,20 +473,22 @@ if (pedidoForm) {
     submitBtn.disabled = !enabled;
   }
 
-  // real-time validation: all three must be non-empty and PIN must be exactly 4 digits
+  // real-time validation: name, phone, PIN (4 dígitos) y una opción de entrega seleccionada
   function validateFormInputs() {
     const nameOk = inputName && inputName.value.trim().length > 0;
     const phoneOk = inputPhone && inputPhone.value.trim().length > 0;
     const pinOk = inputPin && String(inputPin.value).trim().length === 4;
-    setSubmitState(nameOk && phoneOk && pinOk);
+    const deliveryOk = deliveryRadios.some(r => r.checked);
+    setSubmitState(nameOk && phoneOk && pinOk && deliveryOk);
   }
 
-  // attach listeners
+  // attach listeners to inputs and radios
   [inputName, inputPhone, inputPin].forEach(el => {
     if (!el) return;
     el.addEventListener('input', validateFormInputs);
     el.addEventListener('change', validateFormInputs);
   });
+  deliveryRadios.forEach(r => r.addEventListener('change', validateFormInputs));
 
   // initial validation state
   validateFormInputs();

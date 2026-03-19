@@ -27,7 +27,10 @@
         <span>Total</span>
         <strong id="cart-total">$ 0.00</strong>
       </div>
-      <button id="order-btn" class="btn btn-primary">Crear pedido</button>
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <button id="cart-close-btn" class="btn">Cerrar</button>
+        <button id="order-btn" class="btn btn-primary">Crear pedido</button>
+      </div>
     </footer>
   </aside>
 
@@ -98,24 +101,38 @@
             <label>Nombre</label>
             <input type="text" name="Nombre" id="cust-name" placeholder="Introduzca su nombre" required />
           </div>
-          <div class="form-row">
-            <label>Teléfono</label>
-            <input type="tel" name="Telefono" id="cust-phone" placeholder="Introduzca su número de teléfono" required />
+          <div style="display:flex;gap:8px;">
+            <div class="form-row" style="flex:1width:100px;;">
+              <label>Teléfono</label>
+              <input type="tel" name="Telefono" id="cust-phone" placeholder="Introduzca su número de teléfono" required />
+            </div>
+            <div class="form-row" style="flex:1;width:100px;">
+              <label>PIN</label>
+              <input
+                type="number"
+                name="PIN"
+                id="cust-pin"
+                inputmode="numeric"
+                pattern="\d{1,4}"
+                min="0"
+                max="9999"
+                required
+                placeholder="Debe ser de 4 dígitos"
+                oninput="this.value = this.value.replace(/[^0-9]/g,'').slice(0,4);"
+              />
+            </div>
           </div>
+
           <div class="form-row">
-            <label>PIN</label>
-            <input
-+              type="number"
-+              name="PIN"
-+              id="cust-pin"
-+              inputmode="numeric"
-+              pattern="\d{1,4}"
-+              min="0"
-+              max="9999"
-+              required
-               placeholder="Debe ser de 4 dígitos"
-+              oninput="this.value = this.value.replace(/[^0-9]/g,'').slice(0,4);"
-+            />
+            <label>Tipo de entrega</label>
+            <div style="display:flex;gap:12px;align-items:center;">
+              <label style="display:flex;align-items:center;gap:8px;">
+                <input type="radio" name="Entrega" value="Tienda" /> Ir a la tienda
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;">
+                <input type="radio" name="Entrega" value="Domicilio" /> Traer a domicilio
+              </label>
+            </div>
           </div>
 
           <div class="form-row">
@@ -123,21 +140,22 @@
             <textarea name="Productos" id="form-items" rows="4" readonly></textarea>
           </div>
 
-          <div class="form-row">
-            <label>Total a pagar</label>
-            <input type="text" name="Total a pagar" id="form-total" readonly />
-          </div>
-
-          <div class="form-row">
-            <label>Fecha y hora</label>
-            <input
-              type="text"
-              name="Fecha y hora"
-              id="form-datetime"
-              readonly
-              aria-readonly="true"
-              placeholder="D/M/AAAA - h:mm am/pm"
-            />
+          <div style="display:flex;gap:8px;">
+            <div class="form-row" style="flex:1;width:150px;">
+              <label>Total a pagar</label>
+              <input type="text" name="Total a pagar" id="form-total" readonly />
+            </div>
+            <div class="form-row" style="flex:1;width:100px;">
+              <label>Fecha y hora</label>
+              <input
+                type="text"
+                name="Fecha y hora"
+                id="form-datetime"
+                readonly
+                aria-readonly="true"
+                placeholder="D/M/AAAA - h:mm am/pm"
+              />
+            </div>
           </div>
 
           <footer class="modal-footer">
