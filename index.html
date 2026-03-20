@@ -15,7 +15,7 @@
   </header>
 
   <!-- Left sidebar cart -->
-  <aside id="cart-sidebar" class="cart-collapsed" aria-hidden="true">
+  <aside id="cart-sidebar" aria-hidden="true">
     <header class="cart-header">
       <h3>Tu carrito</h3>
     </header>
@@ -27,14 +27,14 @@
         <span>Total</span>
         <strong id="cart-total">$ 0.00</strong>
       </div>
-      <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <div class="cart-footer-actions">
         <button id="cart-close-btn" class="btn">Cerrar</button>
         <button id="order-btn" class="btn btn-primary">Crear pedido</button>
       </div>
     </footer>
   </aside>
 
-    <main id="menu-container" aria-live="polite"></main>
+  <main id="menu-container" aria-live="polite"></main>
 
   <!-- Modal de Carrito (añadir) -->
   <div id="cart-modal" class="modal-hidden" aria-hidden="true">
@@ -46,26 +46,10 @@
       </header>
 
       <div class="modal-body">
-        <!-- Image placeholder (300x300) -->
-        <div style="display:flex;
-          justify-content:center;">
-          <div style="width:300px;
-            height:300px;
-            border-radius:8px;
-            overflow:hidden;
-            background:#f2f2f2;
-            display:flex;
-            align-items:center;
-            justify-content:center;">
-            <img id="cart-item-image" src="" alt="" style="width:100%;
-              height:100%;
-              object-fit:cover;
-              display:none;">
-            <div id="cart-item-image-placeholder" style="color:#888;
-              font-size:13px;
-              padding:8px;
-              text-align:center;">Sin imagen
-            </div>
+        <div class="image-wrapper-outer">
+          <div class="image-wrapper">
+            <img id="cart-item-image" src="" alt="" class="item-image">
+            <div id="cart-item-image-placeholder" class="image-placeholder">Sin imagen</div>
           </div>
         </div>
 
@@ -97,17 +81,19 @@
       <div class="modal-body">
         <form id="pedidoForm" action="https://api.web3forms.com/submit" method="POST">
           <input type="hidden" name="access_key" value="df0bb44d-cde2-4012-a7b2-22958889284c">
+
           <div class="form-row">
-            <label>Nombre</label>
-            <input type="text" name="Nombre" id="cust-name" placeholder="Introduzca su nombre" required />
+            <label for="cust-name">Nombre</label>
+            <input type="text" name="Nombre" id="cust-name" autocomplete="name" placeholder="Introduzca su nombre" required />
           </div>
-          <div style="display:flex;gap:8px;">
-            <div class="form-row" style="flex:1;">
-              <label>Teléfono</label>
-              <input type="tel" name="Telefono" id="cust-phone" placeholder="Introduzca su número de teléfono" required />
+
+          <div class="form-inline-row">
+            <div class="form-row">
+              <label for="cust-phone">Teléfono</label>
+              <input type="tel" name="Telefono" id="cust-phone" autocomplete="tel" placeholder="Introduzca su número de teléfono" required />
             </div>
-            <div class="form-row" style="flex:1;">
-              <label>PIN</label>
+            <div class="form-row">
+              <label for="cust-pin">PIN</label>
               <input
                 type="number"
                 name="PIN"
@@ -125,33 +111,33 @@
 
           <div class="form-row">
             <label>Tipo de entrega</label>
-            <div style="display:flex;gap:12px;align-items:center;">
-              <label style="display:flex;align-items:center;gap:0px;">
-                <input style="margin-bottom:4px;" type="radio" name="Entrega" value="Tienda" />Ir a la tienda
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="Entrega" value="Tienda" />Ir a la tienda
               </label>
-              <label style="display:flex;align-items:center;gap:0px;">
-                <input style="margin-bottom:4px;" type="radio" name="Entrega" value="Domicilio" />Traer a domicilio
+              <label class="radio-label">
+                <input type="radio" name="Entrega" value="Domicilio" />Traer a domicilio
               </label>
             </div>
           </div>
 
           <div class="form-row">
-            <label>Dirección (sólo si pide domicilio)</label>
-            <input type="text" name="Direccion" id="cust-address" placeholder="Por favor, especifique bien su dirección" disabled />
+            <label for="cust-address">Dirección (sólo si pide domicilio)</label>
+            <input type="text" name="Direccion" id="cust-address" autocomplete="street-address" placeholder="Por favor, especifique bien su dirección" disabled />
           </div>
 
           <div class="form-row">
-            <label>Productos pedidos</label>
+            <label for="form-items">Productos pedidos</label>
             <textarea name="Productos" id="form-items" rows="4" readonly></textarea>
           </div>
 
-          <div style="display:flex;gap:8px;">
-            <div class="form-row" style="flex:1;width:30px;">
-              <label>Total a pagar</label>
+          <div class="form-inline-row">
+            <div class="form-row form-row--narrow">
+              <label for="form-total">Total a pagar</label>
               <input type="text" name="Total a pagar" id="form-total" readonly />
             </div>
-            <div class="form-row" style="flex:1;">
-              <label>Fecha y hora</label>
+            <div class="form-row">
+              <label for="form-datetime">Fecha y hora</label>
               <input
                 type="text"
                 name="Fecha y hora"
