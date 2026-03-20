@@ -12,15 +12,40 @@ function parsePrice(priceStr) {
   return m ? Number(m[1].replace(',', '.')) : 0;
 }
 
-/* Fetch text; returns null if unavailable. */
+/* Fetch text; returns null if unavailable. Tries fetch first, then falls back to XHR for file:// or restricted contexts. */
 async function fetchTextWithFallback(path) {
+  // Try fetch (works in normal online/HTTP(S) contexts)
   try {
     const res = await fetch(path, { cache: 'no-cache' });
     if (res.ok) return await res.text();
   } catch (e) {
-    // network or CORS error
+    // fetch failed (offline, CORS, or file:// restrictions) - continue to XHR fallback
   }
-  return null;
+
+  // Fallback: synchronous-ish XHR to support file:// and some offline dev environments
+  try {
+    return await new Promise((resolve) => {
+      try {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', path, true);
+        xhr.overrideMimeType && xhr.overrideMimeType('text/plain; charset=utf-8');
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200 || (xhr.status === 0 && xhr.responseText)) {
+              resolve(xhr.responseText);
+            } else {
+              resolve(null);
+            }
+          }
+        };
+        xhr.send();
+      } catch (err) {
+        resolve(null);
+      }
+    });
+  } catch (e) {
+    return null;
+  }
 }
 
 /* Helper: create a product list item element */
