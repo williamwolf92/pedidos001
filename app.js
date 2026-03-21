@@ -307,6 +307,17 @@ let currentSelecting  = null;
 let currentQty        = 1;
 let orderOpenTimeoutId = null;
 
+/* Helper: animate a modal out, then hide it */
+function closeModalAnimated(modalEl, callback, duration = 180) {
+  modalEl.classList.add('modal-exiting');
+  setTimeout(() => {
+    modalEl.classList.add('modal-hidden');
+    modalEl.classList.remove('modal-exiting');
+    modalEl.setAttribute('aria-hidden', 'true');
+    if (callback) callback();
+  }, duration);
+}
+
 function openCartModal(item) {
   currentSelecting = item;
   currentQty = 1;
@@ -327,10 +338,10 @@ function openCartModal(item) {
 }
 
 function closeCartModal() {
-  cartModal.classList.add('modal-hidden');
-  cartModal.setAttribute('aria-hidden', 'true');
-  currentSelecting = null;
-  currentQty = 1;
+  closeModalAnimated(cartModal, () => {
+    currentSelecting = null;
+    currentQty = 1;
+  });
 }
 
 counterDecr.addEventListener('click', () => {
@@ -393,8 +404,7 @@ function openOrderModal() {
 }
 
 function closeOrderModal() {
-  orderModal.classList.add('modal-hidden');
-  orderModal.setAttribute('aria-hidden', 'true');
+  closeModalAnimated(orderModal);
 }
 
 if (orderBtn) {
@@ -419,14 +429,20 @@ let statusTimeoutId = null;
 
 function showStatus(message, isError) {
   if (!statusModal || !statusText) return;
+  // Cancel any pending hide
+  if (statusTimeoutId) clearTimeout(statusTimeoutId);
+  statusModal.classList.remove('status-hidden', 'status-exiting', 'status-success', 'status-error');
   statusText.textContent = message;
-  statusModal.classList.remove('status-hidden', 'status-success', 'status-error');
   statusModal.classList.add(isError ? 'status-error' : 'status-success');
   statusModal.setAttribute('aria-hidden', 'false');
-  if (statusTimeoutId) clearTimeout(statusTimeoutId);
+  // Auto-hide with exit animation
   statusTimeoutId = setTimeout(() => {
-    statusModal.classList.add('status-hidden');
-    statusModal.setAttribute('aria-hidden', 'true');
+    statusModal.classList.add('status-exiting');
+    setTimeout(() => {
+      statusModal.classList.add('status-hidden');
+      statusModal.classList.remove('status-exiting');
+      statusModal.setAttribute('aria-hidden', 'true');
+    }, 200);
   }, 3000);
 }
 

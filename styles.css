@@ -265,6 +265,32 @@ body > section.menu-section {
   .menu-section { padding: 10px 6px; }
 }
 
+/* ── Animation keyframes ───────────────────────────────────── */
+@keyframes zoomFadeIn {
+  from { opacity: 0; transform: scale(0.80); }
+  to   { opacity: 1; transform: scale(1);    }
+}
+@keyframes zoomFadeOut {
+  from { opacity: 1; transform: scale(1);    }
+  to   { opacity: 0; transform: scale(0.80); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+@keyframes toastIn {
+  from { opacity: 0; transform: scale(0.80) translateY(-12px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0);      }
+}
+@keyframes toastOut {
+  from { opacity: 1; transform: scale(1)    translateY(0);      }
+  to   { opacity: 0; transform: scale(0.80) translateY(-12px);  }
+}
+
 /* Modals */
 .modal-hidden { display: none !important; }
 
@@ -283,6 +309,10 @@ body > section.menu-section {
   position: absolute;
   inset: 0;
   background: rgba(0,0,0,0.3);
+  animation: fadeIn 220ms ease both;
+}
+.modal-exiting .modal-backdrop {
+  animation: fadeOut 180ms ease-in both;
 }
 .modal-card {
   position: relative;
@@ -295,7 +325,12 @@ body > section.menu-section {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  animation: zoomFadeIn 220ms cubic-bezier(0.34, 1.3, 0.64, 1) both;
 }
+.modal-exiting .modal-card {
+  animation: zoomFadeOut 180ms ease-in both;
+}
+
 #order-modal .modal-card { width: min(520px, 96%); }
 
 .modal-header {
@@ -460,6 +495,10 @@ body > section.menu-section {
   max-width: 90%;
   text-align: center;
   box-shadow: 0 10px 10px rgba(0,0,0,0.3);
+  animation: toastIn 250ms cubic-bezier(0.34, 1.3, 0.64, 1) both;
+}
+.status-modal.status-exiting .status-card {
+  animation: toastOut 200ms ease-in both;
 }
 .status-modal.status-success .status-card {
   border: 2px solid #006400;
@@ -471,3 +510,5 @@ body > section.menu-section {
   background: #f44336;
   color: #fff;
 }
+
+
