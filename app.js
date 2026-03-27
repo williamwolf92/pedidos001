@@ -421,7 +421,62 @@ if (orderClose)   orderClose.addEventListener('click', closeOrderModal);
 if (orderCancel)  orderCancel.addEventListener('click', closeOrderModal);
 if (orderBackdrop) orderBackdrop.addEventListener('click', closeOrderModal);
 
-/* --- Envío del formulario --- */
+/* --- Modal de confirmación de envío --- */
+const confirmModal  = document.getElementById('confirm-modal');
+const confirmYesBtn = document.getElementById('confirm-yes');
+const confirmNoBtn  = document.getElementById('confirm-no');
+let confirmCountdownId = null;
+
+function openConfirmModal(onConfirm) {
+  confirmModal.classList.remove('modal-hidden');
+  confirmModal.setAttribute('aria-hidden', 'false');
+
+  // Reset and start countdown
+  let secs = 5;
+  confirmYesBtn.disabled = true;
+  confirmYesBtn.textContent = `Sí (${secs})`;
+
+  confirmCountdownId = setInterval(() => {
+    secs--;
+    if (secs > 0) {
+      confirmYesBtn.textContent = `Sí (${secs})`;
+    } else {
+      clearInterval(confirmCountdownId);
+      confirmYesBtn.disabled = false;
+      confirmYesBtn.textContent = 'Sí';
+    }
+  }, 1000);
+
+  function cleanup() {
+    clearInterval(confirmCountdownId);
+    confirmYesBtn.removeEventListener('click', handleYes);
+    confirmNoBtn.removeEventListener('click', handleNo);
+  }
+
+  function handleYes() {
+    cleanup();
+    closeConfirmModal(() => onConfirm());
+  }
+  function handleNo() {
+    cleanup();
+    closeConfirmModal();
+  }
+
+  confirmYesBtn.addEventListener('click', handleYes);
+  confirmNoBtn.addEventListener('click', handleNo);
+}
+
+function closeConfirmModal(callback) {
+  confirmModal.classList.add('modal-exiting');
+  setTimeout(() => {
+    confirmModal.classList.add('modal-hidden');
+    confirmModal.classList.remove('modal-exiting');
+    confirmModal.setAttribute('aria-hidden', 'true');
+    if (callback) callback();
+  }, 180);
+}
+
+
 const pedidoForm   = document.getElementById('pedidoForm');
 const statusModal  = document.getElementById('status-modal');
 const statusText   = document.getElementById('status-text');
@@ -492,34 +547,37 @@ if (pedidoForm) {
     e.preventDefault();
     if (submitBtn && submitBtn.disabled) return;
 
-    const originalBtnText = submitBtn ? submitBtn.textContent : 'Enviar pedido';
-    if (submitBtn) {
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Enviando...';
-    }
+    // Show confirm modal before submitting
+    openConfirmModal(async () => {
+      const originalBtnText = submitBtn ? submitBtn.textContent : 'Enviar pedido';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Enviando...';
+      }
 
-    try {
-      const res = await fetch(pedidoForm.action, { method: 'POST', body: new FormData(pedidoForm) });
-      if (!res.ok) throw new Error('Respuesta no OK');
+      try {
+        const res = await fetch(pedidoForm.action, { method: 'POST', body: new FormData(pedidoForm) });
+        if (!res.ok) throw new Error('Respuesta no OK');
 
-      showStatus('Orden enviada con éxito.', false);
-      closeOrderModal();
-      pedidoForm.reset();
-      formItems.value = '';
-      formTotal.value = formatCurrency(0);
-      cart.length = 0;
-      renderCart();
-      saveCartToStorage();
-    } catch (err) {
-      showStatus('Error de envío, revise su conexión e intente de nuevo.', true);
-    } finally {
-      setTimeout(() => {
-        if (submitBtn) {
-          submitBtn.textContent = originalBtnText;
-          validateFormInputs();
-        }
-      }, 600);
-    }
+        showStatus('Orden enviada con éxito.', false);
+        closeOrderModal();
+        pedidoForm.reset();
+        formItems.value = '';
+        formTotal.value = formatCurrency(0);
+        cart.length = 0;
+        renderCart();
+        saveCartToStorage();
+      } catch (err) {
+        showStatus('Error de envío, revise su conexión e intente de nuevo.', true);
+      } finally {
+        setTimeout(() => {
+          if (submitBtn) {
+            submitBtn.textContent = originalBtnText;
+            validateFormInputs();
+          }
+        }, 600);
+      }
+    });
   });
 }
 

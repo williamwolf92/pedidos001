@@ -475,7 +475,45 @@ body > section.menu-section {
   margin-bottom: 4px;
 }
 
-/* Status toast */
+/* Confirm modal (no backdrop) */
+#confirm-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 110;
+  pointer-events: none;
+}
+#confirm-modal:not(.modal-hidden) {
+  pointer-events: auto;
+}
+.confirm-card {
+  width: min(360px, 92%);
+  text-align: center;
+  gap: 8px;
+}
+.confirm-body {
+  padding: 8px 4px 4px;
+}
+.confirm-message {
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.confirm-question {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent);
+}
+#confirm-modal .modal-footer {
+  justify-content: center;
+  gap: 12px;
+}
+
 .status-modal {
   position: fixed;
   inset: 0;
@@ -510,5 +548,3 @@ body > section.menu-section {
   background: #f44336;
   color: #fff;
 }
-
-
