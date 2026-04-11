@@ -1,4 +1,4 @@
-/* --- Dynamic loader: read productos.json and render sections/products --- */
+/* --- Dynamic loader: read productos.json and render product cards --- */
 
 /* Cart is persisted to localStorage. The in-memory 'cart' is an array of
    { item: {name, priceValue, priceDisplay, image}, qty } objects. */
@@ -6,23 +6,24 @@
 const CART_STORAGE_KEY = 'mi_app_carrito_v1';
 const cart = [];
 
+/* Map<itemKey, badgeElement> – to update badges without re-rendering cards */
+const productBadges = new Map();
+
+function itemKey(item) {
+  return `${item.name}|${item.priceValue}`;
+}
+
 function parsePrice(priceStr) {
   if (typeof priceStr === 'number') return priceStr;
   const m = String(priceStr).match(/([\d,.]+)/);
   return m ? Number(m[1].replace(',', '.')) : 0;
 }
 
-/* Fetch text; returns null if unavailable. Tries fetch first, then falls back to XHR for file:// or restricted contexts. */
 async function fetchTextWithFallback(path) {
-  // Try fetch (works in normal online/HTTP(S) contexts)
   try {
     const res = await fetch(path, { cache: 'no-cache' });
     if (res.ok) return await res.text();
-  } catch (e) {
-    // fetch failed (offline, CORS, or file:// restrictions) - continue to XHR fallback
-  }
-
-  // Fallback: synchronous-ish XHR to support file:// and some offline dev environments
+  } catch (e) { /* continue */ }
   try {
     return await new Promise((resolve) => {
       try {
@@ -31,54 +32,117 @@ async function fetchTextWithFallback(path) {
         xhr.overrideMimeType && xhr.overrideMimeType('text/plain; charset=utf-8');
         xhr.onreadystatechange = function () {
           if (xhr.readyState === 4) {
-            if (xhr.status === 200 || (xhr.status === 0 && xhr.responseText)) {
-              resolve(xhr.responseText);
-            } else {
-              resolve(null);
-            }
+            if (xhr.status === 200 || (xhr.status === 0 && xhr.responseText)) resolve(xhr.responseText);
+            else resolve(null);
           }
         };
         xhr.send();
-      } catch (err) {
-        resolve(null);
-      }
+      } catch (err) { resolve(null); }
     });
-  } catch (e) {
-    return null;
-  }
+  } catch (e) { return null; }
 }
 
-/* Helper: create a product list item element */
-function createItemNode(item) {
-  const li = document.createElement('li');
-  li.className = 'offer-item';
+/* Helper: create a product card element */
+function createProductCard(item) {
+  const card = document.createElement('div');
+  card.className = 'product-card';
 
-  const left = document.createElement('div');
-  left.style.flex = '1 1 auto';
+  /* Image area */
+  const imgWrap = document.createElement('div');
+  imgWrap.className = 'product-card-img-wrap';
+
+  if (item.image) {
+    const img = document.createElement('img');
+    img.className = 'product-card-img';
+    img.src = item.image;
+    img.alt = item.name;
+    img.loading = 'lazy';
+    imgWrap.appendChild(img);
+  } else {
+    const placeholder = document.createElement('div');
+    placeholder.className = 'product-card-img-placeholder';
+    placeholder.textContent = 'Sin imagen';
+    imgWrap.appendChild(placeholder);
+  }
+  card.appendChild(imgWrap);
+
+  /* Text body */
+  const body = document.createElement('div');
+  body.className = 'product-card-body';
 
   const name = document.createElement('div');
-  name.className = 'offer-name';
+  name.className = 'product-card-name';
   name.textContent = item.name;
-  name.addEventListener('click', () => openCartModal(item));
-  left.appendChild(name);
 
   const price = document.createElement('div');
-  price.className = 'offer-price';
+  price.className = 'product-card-price';
   price.textContent = item.priceDisplay;
 
-  li.appendChild(left);
-  li.appendChild(price);
+  body.appendChild(name);
+  body.appendChild(price);
+  card.appendChild(body);
 
-  return li;
+  /* Action buttons */
+  const actions = document.createElement('div');
+  actions.className = 'product-card-actions';
+
+  /* 🛒 add button */
+  const addBtn = document.createElement('button');
+  addBtn.className = 'card-btn-add';
+  addBtn.setAttribute('aria-label', `Añadir ${item.name} al carrito`);
+
+  const btnEmoji = document.createElement('span');
+  btnEmoji.textContent = 'Agregar';
+
+  const badge = document.createElement('span');
+  badge.className = 'product-badge';
+  badge.textContent = '0';
+  badge.style.display = 'none';
+
+  /* Register badge in map for later updates */
+  productBadges.set(itemKey(item), badge);
+
+  addBtn.appendChild(btnEmoji);
+  addBtn.appendChild(badge);
+
+  addBtn.addEventListener('click', () => {
+    const existing = cart.find(c => c.item.name === item.name && c.item.priceValue === item.priceValue);
+    if (existing) existing.qty++;
+    else cart.push({ item, qty: 1 });
+    renderCart();
+    saveCartToStorage();
+  });
+
+  /* ✕ remove button */
+  const removeBtn = document.createElement('button');
+  removeBtn.className = 'card-btn-remove';
+  removeBtn.setAttribute('aria-label', `Quitar ${item.name} del carrito`);
+  removeBtn.textContent = '✕';
+
+  removeBtn.addEventListener('click', () => {
+    const idx = cart.findIndex(c => c.item.name === item.name && c.item.priceValue === item.priceValue);
+    if (idx === -1) return;
+    if (cart[idx].qty > 1) cart[idx].qty--;
+    else cart.splice(idx, 1);
+    renderCart();
+    saveCartToStorage();
+  });
+
+  actions.appendChild(addBtn);
+  actions.appendChild(removeBtn);
+  card.appendChild(actions);
+
+  return card;
 }
 
 /* Parse the custom productos.json format */
 async function loadAndRenderProducts() {
   const container = document.getElementById('menu-container');
   container.innerHTML = '';
+  productBadges.clear();
 
   const showError = (msg) => {
-    container.innerHTML = `<div class="menu-section"><h2>Error</h2><div>${msg}</div></div>`;
+    container.innerHTML = `<p class="load-error">${msg}</p>`;
   };
 
   try {
@@ -99,9 +163,6 @@ async function loadAndRenderProducts() {
     blockMatches.forEach(block => {
       const lines = block.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
 
-      const sLine = lines.find(l => l.startsWith('s:')) || '';
-      const sectionName = sLine.replace(/^s:/, '').trim() || 'Sin título';
-
       const products = lines
         .filter(l => l.startsWith('p:'))
         .map(pl => {
@@ -118,30 +179,14 @@ async function loadAndRenderProducts() {
           };
         });
 
-      const sectionEl = document.createElement('section');
-      sectionEl.className = 'menu-section';
-
-      const h2 = document.createElement('h2');
-      h2.textContent = sectionName;
-      sectionEl.appendChild(h2);
-
-      const ul = document.createElement('ul');
-      ul.className = 'offer-list';
-
-      if (products.length === 0) {
-        const emptyLi = document.createElement('li');
-        emptyLi.className = 'offer-item';
-        emptyLi.textContent = 'Sin productos en esta sección';
-        ul.appendChild(emptyLi);
-      } else {
-        products.forEach(p => ul.appendChild(createItemNode(p)));
-      }
-
-      sectionEl.appendChild(ul);
-      fragment.appendChild(sectionEl);
+      products.forEach(p => fragment.appendChild(createProductCard(p)));
     });
 
     container.appendChild(fragment);
+
+    /* Sync badges with any previously loaded cart */
+    updateProductBadges();
+
   } catch (err) {
     showError(`Imposible leer productos.json: ${err.message}`);
     console.error(err);
@@ -171,16 +216,13 @@ function formatCurrency(n) {
   return `$ ${Number(n).toFixed(2)}`;
 }
 
-/* Update the order button disabled state */
 function updateOrderBtn() {
   if (orderBtn) orderBtn.disabled = cart.length === 0;
 }
 
 /* Storage helpers */
 function saveCartToStorage() {
-  try {
-    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
-  } catch (e) { /* ignore */ }
+  try { localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart)); } catch (e) { /* ignore */ }
 }
 
 function loadCartFromStorage() {
@@ -206,6 +248,16 @@ function loadCartFromStorage() {
   } catch (e) { /* ignore */ }
 }
 
+/* Update every product-card badge to reflect current cart qty */
+function updateProductBadges() {
+  productBadges.forEach((badge, key) => {
+    const entry = cart.find(c => itemKey(c.item) === key);
+    const qty = entry ? entry.qty : 0;
+    badge.textContent = String(qty);
+    badge.style.display = qty > 0 ? 'inline-flex' : 'none';
+  });
+}
+
 function renderCart() {
   cartItemsList.innerHTML = '';
 
@@ -216,11 +268,12 @@ function renderCart() {
   }
 
   updateOrderBtn();
+  updateProductBadges();
 
   if (cart.length === 0) {
     const li = document.createElement('li');
     li.className = 'cart-row';
-    li.textContent = 'Carrito vacío. Para añadir productos toque el nombre y seleccione la cantidad.';
+    li.textContent = 'Carrito vacío. Pulse Agregar en los productos para añadirlos.';
     cartItemsList.appendChild(li);
     cartTotalEl.textContent = formatCurrency(0);
     saveCartToStorage();
@@ -290,7 +343,7 @@ function renderCart() {
   saveCartToStorage();
 }
 
-/* --- Cart modal (add item) --- */
+/* --- Cart modal (kept for compatibility, not triggered from cards) --- */
 const cartModal       = document.getElementById('cart-modal');
 const cartBackdrop    = document.getElementById('cart-backdrop');
 const cartClose       = document.getElementById('cart-close');
@@ -307,7 +360,6 @@ let currentSelecting  = null;
 let currentQty        = 1;
 let orderOpenTimeoutId = null;
 
-/* Helper: animate a modal out, then hide it */
 function closeModalAnimated(modalEl, callback, duration = 180) {
   modalEl.classList.add('modal-exiting');
   setTimeout(() => {
@@ -367,13 +419,13 @@ cartAddBtn.addEventListener('click', () => {
 });
 
 /* --- Ordenar (formulario modal) --- */
-const orderModal   = document.getElementById('order-modal');
+const orderModal    = document.getElementById('order-modal');
 const orderBackdrop = document.getElementById('order-backdrop');
-const orderClose   = document.getElementById('order-close');
-const orderCancel  = document.getElementById('order-cancel');
-const formItems    = document.getElementById('form-items');
-const formTotal    = document.getElementById('form-total');
-const formDatetime = document.getElementById('form-datetime');
+const orderClose    = document.getElementById('order-close');
+const orderCancel   = document.getElementById('order-cancel');
+const formItems     = document.getElementById('form-items');
+const formTotal     = document.getElementById('form-total');
+const formDatetime  = document.getElementById('form-datetime');
 
 if (orderBtn) orderBtn.disabled = true;
 
@@ -417,8 +469,8 @@ if (orderBtn) {
     }, 600);
   });
 }
-if (orderClose)   orderClose.addEventListener('click', closeOrderModal);
-if (orderCancel)  orderCancel.addEventListener('click', closeOrderModal);
+if (orderClose)    orderClose.addEventListener('click', closeOrderModal);
+if (orderCancel)   orderCancel.addEventListener('click', closeOrderModal);
 if (orderBackdrop) orderBackdrop.addEventListener('click', closeOrderModal);
 
 /* --- Modal de confirmación de envío --- */
@@ -431,7 +483,6 @@ function openConfirmModal(onConfirm) {
   confirmModal.classList.remove('modal-hidden');
   confirmModal.setAttribute('aria-hidden', 'false');
 
-  // Reset and start countdown
   let secs = 5;
   confirmYesBtn.disabled = true;
   confirmYesBtn.textContent = `Sí (${secs})`;
@@ -453,14 +504,8 @@ function openConfirmModal(onConfirm) {
     confirmNoBtn.removeEventListener('click', handleNo);
   }
 
-  function handleYes() {
-    cleanup();
-    closeConfirmModal(() => onConfirm());
-  }
-  function handleNo() {
-    cleanup();
-    closeConfirmModal();
-  }
+  function handleYes() { cleanup(); closeConfirmModal(() => onConfirm()); }
+  function handleNo()  { cleanup(); closeConfirmModal(); }
 
   confirmYesBtn.addEventListener('click', handleYes);
   confirmNoBtn.addEventListener('click', handleNo);
@@ -476,7 +521,6 @@ function closeConfirmModal(callback) {
   }, 180);
 }
 
-
 const pedidoForm   = document.getElementById('pedidoForm');
 const statusModal  = document.getElementById('status-modal');
 const statusText   = document.getElementById('status-text');
@@ -484,13 +528,11 @@ let statusTimeoutId = null;
 
 function showStatus(message, isError) {
   if (!statusModal || !statusText) return;
-  // Cancel any pending hide
   if (statusTimeoutId) clearTimeout(statusTimeoutId);
   statusModal.classList.remove('status-hidden', 'status-exiting', 'status-success', 'status-error');
   statusText.textContent = message;
   statusModal.classList.add(isError ? 'status-error' : 'status-success');
   statusModal.setAttribute('aria-hidden', 'false');
-  // Auto-hide with exit animation
   statusTimeoutId = setTimeout(() => {
     statusModal.classList.add('status-exiting');
     setTimeout(() => {
@@ -521,9 +563,9 @@ if (pedidoForm) {
   }
 
   function validateFormInputs() {
-    const nameOk     = inputName    && inputName.value.trim().length > 0;
-    const phoneOk    = inputPhone   && inputPhone.value.trim().length > 0;
-    const pinOk      = inputPin     && String(inputPin.value).trim().length === 4;
+    const nameOk     = inputName  && inputName.value.trim().length > 0;
+    const phoneOk    = inputPhone && inputPhone.value.trim().length > 0;
+    const pinOk      = inputPin   && String(inputPin.value).trim().length === 4;
     const deliveryOk = deliveryRadios.some(r => r.checked);
     const domicileSelected = deliveryRadios.some(r => r.checked && r.value === 'Domicilio');
     const addressOk  = !domicileSelected || (inputAddress && inputAddress.value.trim().length > 0);
@@ -547,7 +589,6 @@ if (pedidoForm) {
     e.preventDefault();
     if (submitBtn && submitBtn.disabled) return;
 
-    // Show confirm modal before submitting
     openConfirmModal(async () => {
       const originalBtnText = submitBtn ? submitBtn.textContent : 'Enviar pedido';
       if (submitBtn) {
