@@ -1,39 +1,14 @@
 {
-s:PRUEBA
 p:Mayonesa Casera Vima (255ml)/1/mayonesavima.jpg
 p:Papitas Pringles Original/1/pringleoriginal.jpg
-}
-
-{
-s:BEBIDAS
 p:Refresco Brio Naranja/1/brionaranja.png
 p:Refresco Brio Cola/1/briocola.png
 p:Cerveza Calatrava/1/cerv-calatrava.webp
 p:Cerveza Unlaguer/1/cerv-unlaguer.png
-}
-
-{
-s:CONFITURAS
 p:Galletas Oreo (pqt. 6 galletas)/1/galletaoreo.jpg
-}
-
-{
-s:ENLATADOS
 p:Pasta de Tomate Vima (400g)/1/pastatomatevima.jpg
-}
-
-{
-s:PAQUETES
 p:Arroz (1kg)/1/arroz-riograndino.jpg
 p:Frijoles Negros (1kg)/1/frijoles-n-sebraz.webp
 p:Azúcar Blanca (1kg)/1/azucar-b-pateko.jpg
 p:Café (250g)/1/cafe-sebraz.webp
-}
-
-{
-s:Sección 5
-}
-
-{
-s:Sección 6
 }
