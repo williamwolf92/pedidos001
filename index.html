@@ -80,6 +80,9 @@
 
       <div class="modal-body">
         <form id="pedidoForm">
+          <input type="hidden" name="access_key" value="60d5e262-aafb-4fb3-ae0d-b8b30cb7ca5b" />
+          <input type="hidden" name="subject" value="Nuevo pedido recibido desde la web" />
+          <input type="hidden" name="from_name" value="Carta de Ofertas" />
 
           <div class="form-row">
             <label for="cust-name">Nombre</label>
@@ -171,6 +174,12 @@
     </div>
   </div>
 
+  <!-- Toast de error -->
+  <div id="toast" class="toast toast-hidden" role="alert" aria-live="assertive">
+    <span id="toast-message"></span>
+  </div>
+
   <script type="module" src="app.js"></script>
 </body>
+
 </html>
