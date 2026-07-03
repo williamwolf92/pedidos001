@@ -145,7 +145,33 @@ function createProductCard(item) {
   return card;
 }
 
-/* Parse the custom productos.json format */
+/* Parse a CSV line respecting double-quoted fields (handles commas inside quotes and "" escapes) */
+function parseCsvLine(line) {
+  const fields = [];
+  let cur = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+
+    if (inQuotes) {
+      if (char === '"') {
+        if (line[i + 1] === '"') { cur += '"'; i++; }
+        else inQuotes = false;
+      } else {
+        cur += char;
+      }
+    } else {
+      if (char === '"') inQuotes = true;
+      else if (char === ',') { fields.push(cur); cur = ''; }
+      else cur += char;
+    }
+  }
+  fields.push(cur);
+  return fields.map(f => f.trim());
+}
+
+/* Parse the inventario.csv format: producto,precio,disponibilidad,foto */
 async function loadAndRenderProducts() {
   const container = document.getElementById('menu-container');
   container.innerHTML = '';
@@ -156,40 +182,41 @@ async function loadAndRenderProducts() {
   };
 
   try {
-    const text = await fetchTextWithFallback('./productos.json');
+    const text = await fetchTextWithFallback('./inventario.csv');
     if (!text) {
-      showError('El archivo productos.json no se pudo leer (offline o ruta incorrecta).');
+      showError('El archivo inventario.csv no se pudo leer (offline o ruta incorrecta).');
       return;
     }
 
-    const blockMatches = [...text.matchAll(/\{([\s\S]*?)\}/g)].map(m => m[1]);
-    if (!blockMatches.length) {
-      showError('El archivo productos.json no contiene secciones válidas.');
+    const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+    if (!lines.length) {
+      showError('El archivo inventario.csv no contiene datos.');
       return;
     }
+
+    /* Detect and skip header row if present */
+    const headerFields = parseCsvLine(lines[0]).map(f => f.toLowerCase());
+    const hasHeader = headerFields[0] === 'producto';
+    const dataLines = hasHeader ? lines.slice(1) : lines;
 
     const fragment = document.createDocumentFragment();
 
-    blockMatches.forEach(block => {
-      const lines = block.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    dataLines.forEach(line => {
+      const [namePart, pricePart, disponibilidadPart, imagePart] = parseCsvLine(line);
 
-      const products = lines
-        .filter(l => l.startsWith('p:'))
-        .map(pl => {
-          const parts = pl.replace(/^p:/, '').trim().split('/');
-          const namePart  = (parts[0] || '').trim();
-          const pricePart = (parts[1] || '').trim();
-          const imagePart = (parts[2] || '').trim();
-          const priceValue = Number(pricePart) || 0;
-          return {
-            name: namePart || 'Producto',
-            priceValue,
-            priceDisplay: `$ ${priceValue.toFixed(2)}`,
-            image: imagePart ? `img/${imagePart}` : ''
-          };
-        });
+      /* Solo mostrar el producto si disponibilidad es "Si" (no distingue mayúsculas/acentos) */
+      const disponibilidad = (disponibilidadPart || '').trim().toLowerCase();
+      if (disponibilidad !== 'si' && disponibilidad !== 'sí') return;
 
-      products.forEach(p => fragment.appendChild(createProductCard(p)));
+      const priceValue = Number(pricePart) || 0;
+      const product = {
+        name: (namePart || '').trim() || 'Producto',
+        priceValue,
+        priceDisplay: `$ ${priceValue.toFixed(2)}`,
+        image: imagePart ? `img/${imagePart.trim()}` : ''
+      };
+
+      fragment.appendChild(createProductCard(product));
     });
 
     container.appendChild(fragment);
@@ -198,7 +225,7 @@ async function loadAndRenderProducts() {
     updateProductBadges();
 
   } catch (err) {
-    showError(`Imposible leer productos.json: ${err.message}`);
+    showError(`Imposible leer inventario.csv: ${err.message}`);
     console.error(err);
   }
 }
