@@ -506,6 +506,7 @@ body.cart-open #cart-sidebar {
   color: var(--danger);
   border: 1px solid var(--danger);
   cursor: default;
+  box-shadow: 0 0 0px #000;
 }
 .card-btn-add.card-btn-unavailable:active {
   transform: none;
