@@ -95,6 +95,37 @@
     </div>
   </div>
 
+  <!-- Modal de detalle de producto -->
+  <div id="detail-modal" class="modal-hidden" aria-hidden="true">
+    <div class="modal-backdrop" id="detail-backdrop"></div>
+    <div class="modal-card detail-card" role="dialog" aria-modal="true" aria-labelledby="detail-title">
+      <header class="modal-header">
+        <h3 id="detail-title">Detalle del producto</h3>
+        <button id="detail-close" class="modal-close" aria-label="Cerrar">✕</button>
+      </header>
+
+      <div class="modal-body">
+        <div class="detail-image-wrapper-outer">
+          <div class="detail-image-wrapper">
+            <img id="detail-item-image" src="" alt="" class="detail-item-image">
+            <div id="detail-item-image-placeholder" class="image-placeholder">Sin imagen</div>
+          </div>
+        </div>
+
+        <div class="detail-item-name" id="detail-item-name"></div>
+        <div class="detail-item-description" id="detail-item-description"></div>
+      </div>
+
+      <footer class="modal-footer detail-footer">
+        <button id="detail-add" class="card-btn-add" aria-label="Añadir al carrito">
+          <span>Agregar</span>
+          <span id="detail-badge" class="product-badge" style="display:none;">0</span>
+        </button>
+        <button id="detail-remove" class="card-btn-remove" aria-label="Quitar del carrito">✕</button>
+      </footer>
+    </div>
+  </div>
+
   <!-- Modal de pedido -->
   <div id="order-modal" class="modal-hidden" aria-hidden="true">
     <div class="modal-backdrop" id="order-backdrop"></div>

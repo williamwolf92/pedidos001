@@ -29,6 +29,28 @@ function parsePrice(priceStr) {
   return m ? Number(m[1].replace(',', '.')) : 0;
 }
 
+/* Añade/quita del carrito. Usadas tanto por las tarjetas de producto como
+   por el modal de detalle, para que ambos compartan exactamente la misma
+   lógica. */
+function addToCart(item) {
+  const existing = cart.find(c => c.item.name === item.name && c.item.priceValue === item.priceValue);
+  if (existing) existing.qty++;
+  else cart.push({ item, qty: 1 });
+  renderCart();
+  saveCartToStorage();
+  if (typeof updateDetailBadge === 'function') updateDetailBadge();
+}
+
+function removeFromCart(item) {
+  const idx = cart.findIndex(c => c.item.name === item.name && c.item.priceValue === item.priceValue);
+  if (idx === -1) return;
+  if (cart[idx].qty > 1) cart[idx].qty--;
+  else cart.splice(idx, 1);
+  renderCart();
+  saveCartToStorage();
+  if (typeof updateDetailBadge === 'function') updateDetailBadge();
+}
+
 async function fetchTextWithFallback(path) {
   try {
     const res = await fetch(path, { cache: 'no-cache' });
@@ -74,6 +96,7 @@ function createProductCard(item) {
     placeholder.textContent = 'Sin imagen';
     imgWrap.appendChild(placeholder);
   }
+  imgWrap.addEventListener('click', () => openDetailModal(item));
   card.appendChild(imgWrap);
 
   /* Text body */
@@ -116,11 +139,7 @@ function createProductCard(item) {
   addBtn.appendChild(badge);
 
   addBtn.addEventListener('click', () => {
-    const existing = cart.find(c => c.item.name === item.name && c.item.priceValue === item.priceValue);
-    if (existing) existing.qty++;
-    else cart.push({ item, qty: 1 });
-    renderCart();
-    saveCartToStorage();
+    addToCart(item);
   });
 
   /* ✕ remove button */
@@ -130,12 +149,7 @@ function createProductCard(item) {
   removeBtn.textContent = '✕';
 
   removeBtn.addEventListener('click', () => {
-    const idx = cart.findIndex(c => c.item.name === item.name && c.item.priceValue === item.priceValue);
-    if (idx === -1) return;
-    if (cart[idx].qty > 1) cart[idx].qty--;
-    else cart.splice(idx, 1);
-    renderCart();
-    saveCartToStorage();
+    removeFromCart(item);
   });
 
   actions.appendChild(addBtn);
@@ -171,7 +185,7 @@ function parseCsvLine(line) {
   return fields.map(f => f.trim());
 }
 
-/* Parse the inventario.csv format: producto,precio,disponibilidad,foto */
+/* Parse the inventario.csv format: producto,descripcion,precio,disponible,foto */
 async function loadAndRenderProducts() {
   const container = document.getElementById('menu-container');
   container.innerHTML = '';
@@ -202,7 +216,7 @@ async function loadAndRenderProducts() {
     const fragment = document.createDocumentFragment();
 
     dataLines.forEach(line => {
-      const [namePart, pricePart, disponibilidadPart, imagePart] = parseCsvLine(line);
+      const [namePart, descriptionPart, pricePart, disponibilidadPart, imagePart] = parseCsvLine(line);
 
       /* Solo mostrar el producto si disponibilidad es "Si" (no distingue mayúsculas/acentos) */
       const disponibilidad = (disponibilidadPart || '').trim().toLowerCase();
@@ -211,6 +225,7 @@ async function loadAndRenderProducts() {
       const priceValue = Number(pricePart) || 0;
       const product = {
         name: (namePart || '').trim() || 'Producto',
+        description: (descriptionPart || '').trim(),
         priceValue,
         priceDisplay: `$ ${priceValue.toFixed(2)}`,
         image: imagePart ? `img/${imagePart.trim()}` : ''
@@ -314,6 +329,7 @@ function loadCartFromStorage() {
         cart.push({
           item: {
             name:         String(entry.item.name || 'Producto'),
+            description:  String(entry.item.description || ''),
             priceValue:   Number(entry.item.priceValue) || 0,
             priceDisplay: String(entry.item.priceDisplay || `$ ${(Number(entry.item.priceValue) || 0).toFixed(2)}`),
             image:        String(entry.item.image || '')
@@ -494,6 +510,71 @@ cartAddBtn.addEventListener('click', () => {
   saveCartToStorage();
   closeCartModal();
 });
+
+/* --- Modal de detalle de producto (se abre al hacer clic en la foto) --- */
+const detailModal        = document.getElementById('detail-modal');
+const detailBackdrop     = document.getElementById('detail-backdrop');
+const detailClose        = document.getElementById('detail-close');
+const detailImageEl      = document.getElementById('detail-item-image');
+const detailPlaceholderEl = document.getElementById('detail-item-image-placeholder');
+const detailNameEl       = document.getElementById('detail-item-name');
+const detailDescriptionEl = document.getElementById('detail-item-description');
+const detailAddBtn       = document.getElementById('detail-add');
+const detailRemoveBtn    = document.getElementById('detail-remove');
+const detailBadgeEl      = document.getElementById('detail-badge');
+
+let currentDetailItem = null;
+
+function updateDetailBadge() {
+  if (!detailBadgeEl || !currentDetailItem) return;
+  const entry = cart.find(c => itemKey(c.item) === itemKey(currentDetailItem));
+  const qty = entry ? entry.qty : 0;
+  detailBadgeEl.textContent = String(qty);
+  detailBadgeEl.style.display = qty > 0 ? 'inline-flex' : 'none';
+}
+
+function openDetailModal(item) {
+  currentDetailItem = item;
+
+  detailNameEl.textContent = `${item.name} - ${item.priceDisplay}`;
+  detailDescriptionEl.textContent = item.description || '';
+
+  if (detailImageEl && detailPlaceholderEl) {
+    const hasImage = Boolean(item.image);
+    detailImageEl.src = hasImage ? item.image : '';
+    detailImageEl.alt = hasImage ? item.name : '';
+    detailImageEl.style.display = hasImage ? 'block' : 'none';
+    detailPlaceholderEl.style.display = hasImage ? 'none' : 'flex';
+  }
+
+  updateDetailBadge();
+
+  detailModal.classList.remove('modal-hidden');
+  detailModal.setAttribute('aria-hidden', 'false');
+  closeSidebar();
+}
+
+function closeDetailModal() {
+  closeModalAnimated(detailModal, () => {
+    currentDetailItem = null;
+  });
+}
+
+if (detailClose)    detailClose.addEventListener('click', closeDetailModal);
+if (detailBackdrop) detailBackdrop.addEventListener('click', closeDetailModal);
+
+if (detailAddBtn) {
+  detailAddBtn.addEventListener('click', () => {
+    if (!currentDetailItem) return;
+    addToCart(currentDetailItem);
+  });
+}
+if (detailRemoveBtn) {
+  detailRemoveBtn.addEventListener('click', () => {
+    if (!currentDetailItem) return;
+    removeFromCart(currentDetailItem);
+  });
+}
 
 /* --- Ordenar (formulario modal) --- */
 const orderModal    = document.getElementById('order-modal');
