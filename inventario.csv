@@ -1,14 +1,14 @@
-Producto,Descripcion,Precio,Disponible,Foto
-Arroz (bolsa 1kg),xxx,10,Si,mrbeatrbnon9w4.jpg
-Azúcar blanca (bolsa 1kg),xxx,10,Si,mrbebvygsk1vf5.jpg
-Café (pqt 250g),xxx,10,Si,mrcu4bsdafg74c.jpg
-Cerveza Calatrava,xxx,10,No,mrbe6v222lmstz.jpg
-Cerveza Unlager,xxx,10,No,mrc0p2p1za68j6.jpg
-Frijoles Negros (pqt 1kg),xxx,10,Si,mrcu5nx3e3nl54.jpg
-Galletas Oreo (pqt 6 galletas),xxx,10,Si,mrcu6krojfalwn.jpg
-Malta Bucanero,xxx,10,Si,mrcu7id18r631y.jpg
-Mayonesa Vima,xxx,10,Si,mrcu9diez8z7z0.jpg
-Papas Pringles Original,xxx,10,Si,mrcubdp74b56ru.jpg
-Pasta de Tomate,xxx,10,Si,mrcuac7v44d4ri.jpg
-Refresco Brío Cola,xxx,10,Si,mrcu16hinhsfni.jpg
-Refresco Brío Naranja,xxx,10,Si,mrcu3qt4ddkfsh.jpg
+producto,categoria,descripcion,precio,descuento,disponible,popular,foto
+Arroz (bolsa 1kg),Paquetes,,10,0,Si,Si,mrh7g8pkqr1xd5.jpg
+Azúcar blanca (bolsa 1kg),Paquetes,,10,0,Si,Si,mrh7g8pkhdme48.jpg
+Café (pqt 250g),Paquetes,,10,0,Si,No,mrh7g8pl8q0n7e.jpg
+Cerveza Calatrava,Bebidas,,10,0,Si,No,mrh7g8plu40u29.jpg
+Cerveza Unlager,Bebidas,,10,0,Si,Si,mrh7g8pljtij1k.jpg
+Frijoles Negros (pqt 1kg),Paquetes,,10,0,Si,No,mrh7g8pljklgai.jpg
+Galletas Oreo (pqt 6 galletas),Confituras,,10,0,Si,No,mrh7g8plxr5073.jpg
+Malta Bucanero,Refrescos,,10,0,Si,No,mrh7g8plgbipem.jpg
+Mayonesa Vima,Enlatados,,10,0,Si,No,mrh7g8pl80ngvm.jpg
+Papas Pringles Original,Confituras,,10,0,Si,No,mrh7g8pmjo4xgj.jpg
+Pasta de Tomate,Enlatados,,10,0,Si,Si,mrh7g8pm0puuqm.jpg
+Refresco Brío Cola,Refrescos,,10,0,Si,No,mrh7g8pmd27uw8.jpg
+Refresco Brío Naranja,Refrescos,,10,0,Si,No,mrh7g8pm6y7vfl.jpg
