@@ -4,14 +4,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <link rel="stylesheet" href="styles.css" />
-  <title>Tienda Online</title>
+  <title>Nombre de Tienda</title>
 </head>
 <body>
   <header id="app-header">
     <div class="header-inner">
       <div class="brand">
         <span class="brand-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none" /><path fill="currentColor" d="M5 4h14q.425 0 .713.288T20 5t-.288.713T19 6H5q-.425 0-.712-.288T4 5t.288-.712T5 4m0 16q-.425 0-.712-.288T4 19v-5h-.175q-.475 0-.775-.363t-.2-.837l1-5q.075-.35.35-.575T4.825 7h14.35q.35 0 .625.225t.35.575l1 5q.1.475-.2.837t-.775.363H20v5q0 .425-.288.713T19 20t-.712-.288T18 19v-5h-4v5q0 .425-.288.713T13 20zm1-2h6v-4H6z" /></svg></span>
-        <span class="brand-name">Tienda Online</span>
+        <span class="brand-name">Nombre de Tienda</span>
       </div>
 
       <div class="search-wrap">
@@ -48,7 +48,7 @@
 
   <div class="store-hero">
     <p class="store-hero-eyebrow">Te damos la bienvenida</p>
-    <h1 class="store-hero-title">Tienda Online</h1>
+    <h1 class="store-hero-title">Nombre de Tienda</h1>
   </div>
 
   <div class="chips-wrap">
@@ -187,16 +187,12 @@
           </div>
 
           <div class="form-row">
-            <label for="cust-address">Dirección (sólo si pide domicilio)</label>
-            <input type="text" name="Direccion" id="cust-address" autocomplete="street-address" placeholder="Por favor, especifique bien su dirección" disabled />
-          </div>
-
-          <div class="form-row">
-            <label for="cust-location">Ubicación (opcional)</label>
+            <label for="cust-address">Dirección (toque el botón para incluir su ubicación)</label>
             <div class="location-input-row">
-              <input type="text" name="Ubicacion" id="cust-location" readonly placeholder="Toque el botón para compartir su ubicación" />
+              <input type="text" name="Direccion" id="cust-address" autocomplete="street-address" placeholder="Por favor, especifique bien su dirección" disabled />
               <button type="button" id="location-btn" class="location-btn" aria-label="Compartir ubicación">📍</button>
             </div>
+            <input type="hidden" name="Ubicacion" id="cust-location" />
           </div>
 
           <div class="form-row">

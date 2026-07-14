@@ -856,9 +856,10 @@ const toastEl        = document.getElementById('toast');
 const toastMessageEl = document.getElementById('toast-message');
 let toastTimeoutId   = null;
 
-function showToast(message, duration = 4000) {
+function showToast(message, duration = 4000, type = 'error') {
   if (!toastEl || !toastMessageEl) return;
   toastMessageEl.textContent = message;
+  toastEl.classList.toggle('toast-success', type === 'success');
   toastEl.classList.remove('toast-hidden');
   if (toastTimeoutId) clearTimeout(toastTimeoutId);
   toastTimeoutId = setTimeout(() => {
@@ -889,6 +890,7 @@ if (pedidoForm) {
       }
       const originalIcon = locationBtn.textContent;
       locationBtn.disabled = true;
+      locationBtn.classList.remove('location-btn--success');
       locationBtn.textContent = '⏳';
 
       navigator.geolocation.getCurrentPosition(
@@ -897,6 +899,8 @@ if (pedidoForm) {
           inputLocation.value = `https://maps.google.com/?q=${latitude},${longitude}`;
           locationBtn.disabled = false;
           locationBtn.textContent = originalIcon;
+          locationBtn.classList.add('location-btn--success');
+          showToast('Ubicación guardada', 4000, 'success');
         },
         (error) => {
           let mensaje = 'No se pudo obtener la ubicación.';
@@ -1035,6 +1039,7 @@ if (pedidoForm) {
         pedidoForm.reset();
         formItems.value = '';
         formTotal.value = formatCurrency(0);
+        if (locationBtn) locationBtn.classList.remove('location-btn--success');
         cart.length = 0;
         renderCart();
         saveCartToStorage();
