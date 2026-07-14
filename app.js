@@ -441,7 +441,7 @@ cartToggle.addEventListener('click', () => {
 if (cartCloseBtn) cartCloseBtn.addEventListener('click', closeSidebar);
 
 function formatCurrency(n) {
-  return `$ ${Number(n).toFixed(2)}`;
+  return `$ ${Number(n).toFixed(0)}`;
 }
 
 function updateOrderBtn() {
