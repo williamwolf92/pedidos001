@@ -1004,6 +1004,39 @@ body.cart-open #cart-sidebar {
   gap: 8px;
 }
 
+.location-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+.location-input-row input[type="text"] {
+  flex: 1;
+  min-width: 0;
+}
+.location-btn {
+  flex-shrink: 0;
+  width: 42px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+  transition: 0.15s;
+}
+.location-btn:hover {
+  background: var(--accent-light);
+  border-color: var(--accent);
+}
+.location-btn:active {
+  transform: scale(0.88);
+}
+.location-btn:disabled {
+  opacity: 0.6;
+}
+
 .radio-group {
   display: flex;
   gap: 14px;

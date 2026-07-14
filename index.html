@@ -192,6 +192,19 @@
           </div>
 
           <div class="form-row">
+            <label for="cust-location">Ubicación (opcional)</label>
+            <div class="location-input-row">
+              <input type="text" name="Ubicacion" id="cust-location" readonly placeholder="Toque el botón para compartir su ubicación" />
+              <button type="button" id="location-btn" class="location-btn" aria-label="Compartir ubicación">📍</button>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label for="cust-details">Detalles (opcional)</label>
+            <textarea name="Detalles" id="cust-details" rows="3" placeholder="Escriba en detalle la variante (si existe) del producto que desea, como por ejemplo color o tamaño"></textarea>
+          </div>
+
+          <div class="form-row">
             <label for="form-items">Productos pedidos</label>
             <textarea name="Productos" id="form-items" rows="4" readonly></textarea>
           </div>

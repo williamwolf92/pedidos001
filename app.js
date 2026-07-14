@@ -26,6 +26,18 @@ let allProducts = [];
 let categoriesList = [];
 let activeCategory = null;
 
+/* Categorías mostradas como chips, leídas desde cat.txt (una por línea).
+   Si el archivo no existe o está vacío, se recurre a categoriesList
+   (derivada del CSV) para que la tienda no se quede sin chips. */
+let chipCategoriesList = [];
+
+async function loadChipCategories() {
+  const text = await fetchTextWithFallback('./cat.txt');
+  chipCategoriesList = text
+    ? text.split(/\r?\n/).map(l => l.trim()).filter(Boolean)
+    : [];
+}
+
 function registerBadge(key, badgeEl) {
   if (!productBadges.has(key)) productBadges.set(key, []);
   productBadges.get(key).push(badgeEl);
@@ -222,7 +234,10 @@ async function loadAndRenderProducts() {
   };
 
   try {
-    const text = await fetchTextWithFallback('./inventario.csv');
+    const [text] = await Promise.all([
+      fetchTextWithFallback('./inventario.csv'),
+      loadChipCategories(),
+    ]);
     if (!text) {
       showError('El archivo inventario.csv no se pudo leer (offline o ruta incorrecta).');
       return;
@@ -299,7 +314,9 @@ function renderCategoryChips() {
   if (!wrap) return;
   wrap.innerHTML = '';
 
-  categoriesList.forEach(cat => {
+  const chipCats = chipCategoriesList.length ? chipCategoriesList : categoriesList;
+
+  chipCats.forEach(cat => {
     const chip = document.createElement('button');
     chip.type = 'button';
     chip.className = 'category-chip';
@@ -857,7 +874,39 @@ if (pedidoForm) {
   const inputPhone     = document.getElementById('cust-phone');
   const inputPin       = document.getElementById('cust-pin');
   const inputAddress   = document.getElementById('cust-address');
+  const inputLocation  = document.getElementById('cust-location');
+  const locationBtn    = document.getElementById('location-btn');
+  const inputDetails   = document.getElementById('cust-details');
   const deliveryRadios = Array.from(pedidoForm.querySelectorAll('input[name="Entrega"]'));
+
+  /* Botón 📍: pide la ubicación del navegador y, una vez confirmada,
+     escribe en el campo el enlace de Google Maps hacia esas coordenadas. */
+  if (locationBtn && inputLocation) {
+    locationBtn.addEventListener('click', () => {
+      if (!navigator.geolocation) {
+        showToast('Su navegador no permite compartir la ubicación.');
+        return;
+      }
+      const originalIcon = locationBtn.textContent;
+      locationBtn.disabled = true;
+      locationBtn.textContent = '⏳';
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          inputLocation.value = `https://maps.google.com/?q=${latitude},${longitude}`;
+          locationBtn.disabled = false;
+          locationBtn.textContent = originalIcon;
+        },
+        () => {
+          showToast('No se pudo obtener la ubicación. Revise los permisos.');
+          locationBtn.disabled = false;
+          locationBtn.textContent = originalIcon;
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    });
+  }
 
   function setSubmitState(enabled) {
     if (submitBtn) submitBtn.disabled = !enabled;
@@ -904,6 +953,8 @@ if (pedidoForm) {
       const pin       = inputPin   ? inputPin.value.trim()   : '';
       const entrega   = deliveryRadios.find(r => r.checked)?.value || '';
       const direccion = (entrega === 'Domicilio' && inputAddress) ? inputAddress.value.trim() : '';
+      const ubicacion = inputLocation ? inputLocation.value.trim() : '';
+      const detalles  = inputDetails  ? inputDetails.value.trim()  : '';
       /* Normalizar saltos de línea del textarea (evita \r\n en Windows) */
       const productos = formItems    ? formItems.value.replace(/\r\n|\r/g, '\n') : '';
       const total     = formTotal    ? formTotal.value    : '';
@@ -919,9 +970,14 @@ if (pedidoForm) {
         `\u{1F69A} Entrega: ${entrega}`,
       ];
       if (direccion) lineas.push(`\u{1F4CD} Direccion: ${direccion}`);
+      if (ubicacion) lineas.push(`\u{1F5FA} Ubicacion: ${ubicacion}`);
       lineas.push('');
       lineas.push('\u{1F4E6} *Productos:*');
       lineas.push(productos.trim());
+      if (detalles) {
+        lineas.push('');
+        lineas.push(`\u{1F4DD} Detalles: ${detalles}`);
+      }
       lineas.push('');
       lineas.push(`\u{1F4B0} *Total: ${total}*`);
       lineas.push(`\u{1F4C5} ${datetime}`);
