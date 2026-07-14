@@ -898,12 +898,20 @@ if (pedidoForm) {
           locationBtn.disabled = false;
           locationBtn.textContent = originalIcon;
         },
-        () => {
-          showToast('No se pudo obtener la ubicación. Revise los permisos.');
+        (error) => {
+          let mensaje = 'No se pudo obtener la ubicación.';
+          if (error.code === error.PERMISSION_DENIED) {
+            mensaje = 'Permiso de ubicación denegado. Revise los permisos del sitio.';
+          } else if (error.code === error.POSITION_UNAVAILABLE) {
+            mensaje = 'La ubicación no está disponible en este momento.';
+          } else if (error.code === error.TIMEOUT) {
+            mensaje = 'Tardó demasiado en obtener la ubicación. Intente de nuevo.';
+          }
+          showToast(mensaje);
           locationBtn.disabled = false;
           locationBtn.textContent = originalIcon;
         },
-        { enableHighAccuracy: true, timeout: 10000 }
+        { enableHighAccuracy: true, timeout: 20000, maximumAge: 60000 }
       );
     });
   }
