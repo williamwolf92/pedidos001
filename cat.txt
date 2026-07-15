@@ -2,4 +2,5 @@ Accesorios
 Electrodomésticos
 Indumentaria
 Lencería
+Placer
 Transporte
