@@ -10,7 +10,9 @@
   <header id="app-header">
     <div class="header-inner">
       <div class="brand">
-        <span class="brand-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none" /><path fill="currentColor" d="M5 4h14q.425 0 .713.288T20 5t-.288.713T19 6H5q-.425 0-.712-.288T4 5t.288-.712T5 4m0 16q-.425 0-.712-.288T4 19v-5h-.175q-.475 0-.775-.363t-.2-.837l1-5q.075-.35.35-.575T4.825 7h14.35q.35 0 .625.225t.35.575l1 5q.1.475-.2.837t-.775.363H20v5q0 .425-.288.713T19 20t-.712-.288T18 19v-5h-4v5q0 .425-.288.713T13 20zm1-2h6v-4H6z" /></svg></span>
+        <button id="info-toggle" class="brand-icon-btn" aria-label="Abrir menú">
+          <span class="brand-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24"><path fill="currentColor" d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z" /></svg></span>
+        </button>
         <span class="brand-name">Tienda Online</span>
       </div>
 
@@ -44,6 +46,16 @@
         <button id="order-btn" class="btn btn-primary">Crear pedido</button>
       </div>
     </footer>
+  </aside>
+
+  <!-- Left sidebar info (menú) -->
+  <aside id="info-sidebar" aria-hidden="true">
+    <header class="cart-header">
+      <h3>Información</h3>
+    </header>
+    <div class="cart-body info-body">
+      <div id="info-content" class="info-content"></div>
+    </div>
   </aside>
 
   <div class="store-hero">
@@ -236,7 +248,7 @@
   <div id="confirm-modal" class="modal-hidden" aria-hidden="true">
     <div class="modal-card confirm-card" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
       <div class="confirm-body">
-        <p class="confirm-message">‼️AVISO IMPORTANTE‼️<br><br>Es posible que algunos de los productos que ha pedido no se encuentren disponibles. Usted solo pagará por los que reciba.</p>
+        <p class="confirm-message">‼️AVISO IMPORTANTE‼️<br><br>Antes de hacer su pedido, por favor, es importante que lea la información del menú superior izquierdo si aún no lo ha hecho.</p>
         <p class="confirm-question">¿Desea continuar?</p>
       </div>
       <footer class="modal-footer">

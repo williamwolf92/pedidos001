@@ -449,13 +449,68 @@ const cartBadge     = document.getElementById('cart-badge');
 const orderBtn      = document.getElementById('order-btn');
 const cartCloseBtn  = document.getElementById('cart-close-btn');
 
-function openSidebar()  { document.body.classList.add('cart-open');    cartSidebar.setAttribute('aria-hidden', 'false'); }
-function closeSidebar() { document.body.classList.remove('cart-open'); cartSidebar.setAttribute('aria-hidden', 'true');  }
+function openSidebar() {
+  document.body.classList.remove('info-open');
+  if (infoSidebar) infoSidebar.setAttribute('aria-hidden', 'true');
+  document.body.classList.add('cart-open');
+  if (cartSidebar) cartSidebar.setAttribute('aria-hidden', 'false');
+}
+function closeSidebar() {
+  document.body.classList.remove('cart-open');
+  if (cartSidebar) cartSidebar.setAttribute('aria-hidden', 'true');
+}
 
-cartToggle.addEventListener('click', () => {
-  document.body.classList.contains('cart-open') ? closeSidebar() : openSidebar();
-});
+if (cartToggle) {
+  cartToggle.addEventListener('click', () => {
+    document.body.classList.contains('cart-open') ? closeSidebar() : openSidebar();
+  });
+}
 if (cartCloseBtn) cartCloseBtn.addEventListener('click', closeSidebar);
+
+/* --- Sidebar info (menú) rendering and controls --- */
+const infoSidebar  = document.getElementById('info-sidebar');
+const infoToggle   = document.getElementById('info-toggle');
+const infoCloseBtn = document.getElementById('info-close-btn');
+const infoContent  = document.getElementById('info-content');
+let infoContentLoaded = false;
+
+async function loadInfoContent() {
+  if (!infoContent || infoContentLoaded) return;
+  infoContentLoaded = true;
+  try {
+    const html = await fetchTextWithFallback('./info.html');
+    if (!html) {
+      infoContent.innerHTML = '<p class="load-error">No se pudo cargar info.html.</p>';
+      return;
+    }
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const styleTag = doc.querySelector('style');
+    const bodyHtml = doc.body ? doc.body.innerHTML : '';
+    infoContent.innerHTML = (styleTag ? styleTag.outerHTML : '') + bodyHtml;
+  } catch (err) {
+    infoContent.innerHTML = '<p class="load-error">No se pudo cargar info.html.</p>';
+    console.error(err);
+  }
+}
+
+function openInfoSidebar() {
+  document.body.classList.remove('cart-open');
+  if (cartSidebar) cartSidebar.setAttribute('aria-hidden', 'true');
+  document.body.classList.add('info-open');
+  if (infoSidebar) infoSidebar.setAttribute('aria-hidden', 'false');
+  loadInfoContent();
+}
+function closeInfoSidebar() {
+  document.body.classList.remove('info-open');
+  if (infoSidebar) infoSidebar.setAttribute('aria-hidden', 'true');
+}
+
+if (infoToggle) {
+  infoToggle.addEventListener('click', () => {
+    document.body.classList.contains('info-open') ? closeInfoSidebar() : openInfoSidebar();
+  });
+}
+if (infoCloseBtn) infoCloseBtn.addEventListener('click', closeInfoSidebar);
 
 function formatCurrency(n) {
   return `$ ${Number(n).toFixed(0)}`;
@@ -1009,9 +1064,10 @@ if (pedidoForm) {
 
       try {
         /* Enviar el pedido por correo a través de Web3Forms.
-           Se envía únicamente el campo "Fecha y hora", sin los demás
-           campos individuales del formulario ni el mensaje compilado,
-           para que el correo llegue limpio y legible. */
+           Se envían únicamente los campos "Tipo", "Productos" y
+           "Fecha y hora", sin los demás campos individuales del
+           formulario ni el mensaje compilado, para que el correo
+           llegue limpio y legible. */
         const accessKey = pedidoForm.querySelector('input[name="access_key"]')?.value || '';
         const subject   = pedidoForm.querySelector('input[name="subject"]')?.value   || '';
         const fromName  = pedidoForm.querySelector('input[name="from_name"]')?.value || '';
@@ -1020,6 +1076,8 @@ if (pedidoForm) {
         formData.append('access_key', accessKey);
         formData.append('subject', subject);
         formData.append('from_name', fromName);
+        formData.append('Tipo', entrega);
+        formData.append('Productos', productos.trim());
         formData.append('Fecha y hora', datetime);
 
         const response = await fetch(WEB3FORMS_ENDPOINT, {
