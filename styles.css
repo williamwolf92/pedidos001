@@ -1027,6 +1027,14 @@ body.cart-open #cart-sidebar {
   cursor: default;
   transition: 0.15s;
 }
+.location-btn-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--text, #333);
+}
+.location-btn.location-btn--success .location-btn-icon {
+  color: #333;
+}
 .location-btn:hover {
   background: var(--accent-light);
   border-color: var(--accent);

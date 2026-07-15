@@ -880,25 +880,27 @@ if (pedidoForm) {
   const inputDetails   = document.getElementById('cust-details');
   const deliveryRadios = Array.from(pedidoForm.querySelectorAll('input[name="Entrega"]'));
 
-  /* Botón 📍: pide la ubicación del navegador y, una vez confirmada,
+  /* Botón de ubicación: pide la ubicación del navegador y, una vez confirmada,
      escribe en el campo el enlace de Google Maps hacia esas coordenadas. */
   if (locationBtn && inputLocation) {
+    const pinIconSVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="location-btn-icon"><path fill="currentColor" d="M11.3 21.2q-.35-.125-.625-.375Q9.05 19.325 7.8 17.9t-2.087-2.762t-1.275-2.575T4 10.2q0-2.575 1.3-4.625t3.675-3q.65-.275 1.438-.425t1.562-.175q.425 0 .713.275t.287.7t-.288.738t-.712.312q-.6 0-1.175.113t-1.15.337q-1.75.725-2.7 2.3T6 10.2q0 1.775 1.475 4.063T12 19.35q1.525-1.4 2.65-2.662t1.875-2.413q.5-.775.875-1.588T17.925 11q.1-.575.437-.8t.713-.175t.637.3t.213.675q-.2 1.55-.888 2.913t-1.612 2.612q-1.075 1.425-2.212 2.538t-1.888 1.762q-.275.25-.625.375t-.7.125t-.7-.125m2.113-9.787Q14 10.825 14 10t-.587-1.412T12 8t-1.412.588T10 10t.588 1.413T12 12t1.413-.587M18 5v2q0 .425.288.713T19 8t.713-.288T20 7V5h2q.425 0 .713-.288T23 4t-.288-.712T22 3h-2V1q0-.425-.288-.712T19 0t-.712.288T18 1v2h-2q-.425 0-.712.288T15 4t.288.713T16 5z"/></svg>';
+    const spinnerIconSVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="location-btn-icon"><path fill="currentColor" d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z" opacity=".25"/><path fill="currentColor" d="M12,4a8,8,0,0,1,7.89,6.7A1.53,1.53,0,0,0,21.38,12h0a1.5,1.5,0,0,0,1.48-1.75,11,11,0,0,0-21.72,0A1.5,1.5,0,0,0,2.62,12h0a1.53,1.53,0,0,0,1.49-1.3A8,8,0,0,1,12,4Z"><animateTransform attributeName="transform" dur="0.75s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12"/></path></svg>';
+
     locationBtn.addEventListener('click', () => {
       if (!navigator.geolocation) {
         showToast('Su navegador no permite compartir la ubicación.');
         return;
       }
-      const originalIcon = locationBtn.textContent;
       locationBtn.disabled = true;
       locationBtn.classList.remove('location-btn--success');
-      locationBtn.textContent = '⏳';
+      locationBtn.innerHTML = spinnerIconSVG;
 
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const { latitude, longitude } = pos.coords;
           inputLocation.value = `https://maps.google.com/?q=${latitude},${longitude}`;
           locationBtn.disabled = false;
-          locationBtn.textContent = originalIcon;
+          locationBtn.innerHTML = pinIconSVG;
           locationBtn.classList.add('location-btn--success');
           showToast('Ubicación guardada', 4000, 'success');
         },
@@ -913,7 +915,7 @@ if (pedidoForm) {
           }
           showToast(mensaje);
           locationBtn.disabled = false;
-          locationBtn.textContent = originalIcon;
+          locationBtn.innerHTML = pinIconSVG;
         },
         { enableHighAccuracy: true, timeout: 20000, maximumAge: 60000 }
       );
