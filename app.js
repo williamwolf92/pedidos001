@@ -1054,12 +1054,12 @@ if (pedidoForm) {
         '\u{1F6D2} *NUEVO PEDIDO*',
         '',
         `\u{1F464} Nombre: ${nombre}`,
-        `\u{1F4F1} Telefono: ${telefono}`,
+        `\u{1F4F1} Teléfono: ${telefono}`,
         `\u{1F511} PIN: ${pin}`,
         `\u{1F69A} Entrega: ${entrega}`,
       ];
-      if (direccion) lineas.push(`\u{1F4CD} Direccion: ${direccion}`);
-      if (ubicacion) lineas.push(`\u{1F5FA} Ubicacion: ${ubicacion}`);
+      if (direccion) lineas.push(`\u{1F3E0} Dirección: ${direccion}`);
+      if (ubicacion) lineas.push(`\u{1F4CD} Ubicación: ${ubicacion}`);
       lineas.push('');
       lineas.push('\u{1F4E6} *Productos:*');
       lineas.push(productos.trim());
