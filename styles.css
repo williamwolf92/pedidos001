@@ -641,6 +641,11 @@ body.info-open #info-sidebar {
   color: var(--danger);
   text-decoration: line-through;
 }
+.product-card-price-currency {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-soft);
+}
 
 /* Card action row */
 .product-card-actions {

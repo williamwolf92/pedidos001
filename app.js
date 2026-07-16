@@ -156,18 +156,33 @@ function createProductCard(item, opts = {}) {
     priceNow.className = 'product-card-price';
     priceNow.textContent = item.priceDisplay;
 
+    const priceCurrency = document.createElement('span');
+    priceCurrency.className = 'product-card-price-currency';
+    priceCurrency.textContent = item.currency;
+
     const priceOld = document.createElement('span');
     priceOld.className = 'product-card-price-old';
     priceOld.textContent = item.originalPriceDisplay;
 
     priceWrap.appendChild(priceNow);
+    priceWrap.appendChild(priceCurrency);
     priceWrap.appendChild(priceOld);
     body.appendChild(priceWrap);
   } else {
+    const priceWrap = document.createElement('div');
+    priceWrap.className = 'product-card-price-wrap';
+
     const price = document.createElement('div');
     price.className = 'product-card-price';
     price.textContent = item.priceDisplay;
-    body.appendChild(price);
+
+    const priceCurrency = document.createElement('span');
+    priceCurrency.className = 'product-card-price-currency';
+    priceCurrency.textContent = item.currency;
+
+    priceWrap.appendChild(price);
+    priceWrap.appendChild(priceCurrency);
+    body.appendChild(priceWrap);
   }
 
   card.appendChild(body);
@@ -216,7 +231,7 @@ function parseCsvLine(line) {
 }
 
 /* Parse el formato inventario.csv:
-   producto,categoria,descripcion,precio,descuento,disponible,popular,foto */
+   producto,categoria,descripcion,precio,moneda,descuento,disponible,popular,foto */
 async function loadAndRenderProducts() {
   const container = document.getElementById('menu-container');
   container.innerHTML = '';
@@ -255,7 +270,7 @@ async function loadAndRenderProducts() {
     const dataLines = hasHeader ? lines.slice(1) : lines;
 
     dataLines.forEach(line => {
-      const [namePart, categoryPart, descriptionPart, pricePart, discountPart, disponibilidadPart, popularPart, imagePart] = parseCsvLine(line);
+      const [namePart, categoryPart, descriptionPart, pricePart, monedaPart, discountPart, disponibilidadPart, popularPart, imagePart] = parseCsvLine(line);
 
       /* Ya no se oculta el producto si disponibilidad es "No"; en su lugar
          se marca como no disponible y la tarjeta muestra "Agotado". */
@@ -270,6 +285,9 @@ async function loadAndRenderProducts() {
       const hasDiscount = Boolean((discountPart || '').trim()) && discountRaw > 0 && discountRaw < originalPrice;
       const finalPrice = hasDiscount ? discountRaw : originalPrice;
 
+      const monedaNorm = (monedaPart || '').trim().toUpperCase();
+      const currency = (monedaNorm === 'USD') ? 'USD' : 'CUP';
+
       const category = (categoryPart || '').trim() || 'Sin categoría';
 
       const product = {
@@ -278,6 +296,7 @@ async function loadAndRenderProducts() {
         description: (descriptionPart || '').trim(),
         priceValue: finalPrice,
         priceDisplay: formatCurrency(finalPrice),
+        currency,
         hasDiscount,
         originalPriceDisplay: formatCurrency(originalPrice),
         image: imagePart ? `img/${imagePart.trim()}` : '',
@@ -769,7 +788,7 @@ function updateDetailBadge() {
 function openDetailModal(item) {
   currentDetailItem = item;
 
-  detailNameEl.textContent = `${item.name} - ${item.priceDisplay}`;
+  detailNameEl.textContent = `${item.name} - ${item.priceDisplay} ${item.currency}`;
   detailDescriptionEl.textContent = (item.description || '').replace(/\\n/g, '\n');
 
   if (detailImageEl && detailPlaceholderEl) {
