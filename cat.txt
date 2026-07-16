@@ -7,3 +7,4 @@ Transporte
 Calzado
 Muebles
 Utilidades
+Ropa
