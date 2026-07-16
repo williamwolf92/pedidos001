@@ -8,3 +8,5 @@ Calzado
 Muebles
 Utilidades
 Ropa
+Ropa de Hombre
+Ropa de Mujer
